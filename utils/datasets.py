@@ -1,6 +1,6 @@
 from torch.utils.data import Dataset
 import torch
-
+import pickle
 from .preprocessing import WordEmbedding, load_word_emb
 
 w2v_config = {
@@ -46,6 +46,7 @@ class AlphabetSortingDataset(Dataset):
     
     def __getitem__(self, idx):
         return self.x[idx], self.y[idx], self.chars[idx]
+        
     
 class NumberSortingDataset(Dataset):
     
@@ -70,3 +71,22 @@ class NumberSortingDataset(Dataset):
     
     def __getitem__(self, idx):
         return self.x[idx], self.y[idx]
+
+
+class ExtendedWikiSQL(Dataset):
+
+    def __init__(self):
+        self.inputs, self.targets = [], []
+
+    def __len__(self):
+        return len(self.inputs)
+
+    def __getitem__(self, idx):
+        return {
+            'input': self.inputs[idx],
+            'target': self.targets[idx]
+        }
+
+    def load_from_torch(self, path):
+        self.inputs = torch.load('{}_inputs.pt'.format(path))
+        self.targets = torch.load('{}_targets.pt'.format(path))
