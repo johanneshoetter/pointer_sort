@@ -251,7 +251,9 @@ class PointerNet(nn.Module):
     Pointer-Net
     """
 
-    def __init__(self, embedding_dim,
+    def __init__(self, 
+                 input_dim,
+                 embedding_dim,
                  hidden_dim,
                  lstm_layers,
                  dropout,
@@ -268,7 +270,7 @@ class PointerNet(nn.Module):
         super(PointerNet, self).__init__()
         self.embedding_dim = embedding_dim
         self.bidir = bidir
-        self.embedding = nn.Linear(embedding_dim, embedding_dim) #nn.Linear(2, embedding_dim)
+        self.embedding = nn.Linear(input_dim, embedding_dim) #nn.Linear(2, embedding_dim)
         self.encoder = Encoder(embedding_dim,
                                hidden_dim,
                                lstm_layers,
@@ -310,3 +312,10 @@ class PointerNet(nn.Module):
                                                            encoder_outputs)
 
         return  outputs, pointers
+    
+    def serialize(self, path):
+        torch.save(self.state_dict(), path)
+        
+    def initialize(self, path):
+        self.load_state_dict(torch.load(path))
+        self.eval()
