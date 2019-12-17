@@ -1,0 +1,4 @@
+source_col,input_cols,target_col
+Area (km 2 ),"['DVD title', 'Number of Episodes', 'Region 2', 'Region 4 (AU)', 'Region 1 (US)']",Region 1 (US)
+Region 1 release,"['DVD title', 'Number of Episodes', 'Region 2', 'Region 4 (AU)', 'Region 1 (US)']",Region 2
+Region 2 (FR),"['DVD title', 'Number of Episodes', 'Region 2', 'Region 4 (AU)', 'Region 1 (US)']",Region 4 (AU)
