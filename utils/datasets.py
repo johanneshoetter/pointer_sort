@@ -3,6 +3,7 @@ import torch
 import pickle
 from .preprocessing import WordEmbedding, load_word_emb
 import numpy as np
+import os
 
 w2v_config = {
     'data_dir': 'data/glove',
@@ -52,7 +53,26 @@ class AlphabetSortingDataset(Dataset):
     
     def __getitem__(self, idx):
         return self.x[idx], self.y[idx], self.chars[idx]
+    
+    def save(self, path):
+        chunk = {
+            'x': self.x,
+            'y': self.y,
+            'chars': self.chars,
+            'min_len': self.min_len,
+            'max_len': self.max_len
+        }
+        torch.save(chunk, os.path.join(path, 'alphabet.pt'))
 
+    def load(self, path):
+        self.x, self.y, self.chars = [], [], []
+        data = torch.load(os.path.join(path, 'alphabet.pt'))
+        x, y, chars = data['x'], data['y'], data['chars']
+        self.x.extend(x)
+        self.y.extend(y)
+        self.chars.extend(chars) 
+        return data['min_len'], data['max_len']
+        
 #class AlphabetSortingDataset(Dataset):
 #    
 #    def __init__(self, num_samples, min_len=20, max_len=60, alphabet='abcdefghijklmnopqrstuvwxyz'):
