@@ -1,0 +1,1331 @@
+<!DOCTYPE html>
+<!-- saved from url=(0041)https://datamade.us/blog/schema-matching/ -->
+<html lang="en" class="gr__datamade_us"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>
+      
+        Modern Approaches to Schema Matching - DataMade
+      
+    </title>
+    
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    
+      <meta content="In this memo, we review the literature on *schema matching*—a set of principled approaches to automatically detecting what kinds of data are contained in databases of enormous size and uncertain format." name="description">
+    
+    <meta content="DataMade" name="author">
+
+    <!-- Facebook metadata -->
+    <meta content="" property="og:site_name">
+    
+      <meta content="Modern Approaches to Schema Matching" property="og:title">
+    
+    
+      <meta content="article" property="og:type">
+    
+    
+      <meta content="In this memo, we review the literature on *schema matching*—a set of principled approaches to automatically detecting what kinds of data are contained in databases of enormous size and uncertain format." property="og:description">
+    
+    
+      <meta content="https://datamade.us/blog/schema-matching/" property="og:url">
+    
+    
+      <meta content="2017-12-12T00:00:00-06:00" property="article:published_time">
+      <meta content="https://datamade.us/about-us/" property="article:author">
+    
+    
+      <meta content="https://datamade.us/images/blog/2017-12-12-schema-matching/schema-matching.jpg" property="og:image">
+    
+    
+      
+      <meta content="blog" property="article:section">
+      
+    
+    
+      
+    
+
+    <!-- Twitter metadata -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@DataMadeCo">
+    <meta name="twitter:creator" content="@DataMadeCo">
+    
+      <meta name="twitter:title" content="Modern Approaches to Schema Matching">
+    
+    
+      <meta name="twitter:url" content="https://datamade.us/blog/schema-matching/">
+    
+    
+      <meta name="twitter:description" content="In this memo, we review the literature on *schema matching*—a set of principled approaches to automatically detecting what kinds of data are contained in databases of enormous size and uncertain format.">
+    
+    
+      <meta name="twitter:image" content="https://datamade.us/images/blog/2017-12-12-schema-matching/schema-matching.jpg">
+    
+
+    <link rel="apple-touch-icon-precomposed" sizes="144x144" href="https://datamade.us/apple-touch-icon-144x144.png">
+    <link rel="apple-touch-icon-precomposed" sizes="152x152" href="https://datamade.us/apple-touch-icon-152x152.png">
+    <link rel="icon" type="image/png" href="https://datamade.us/favicon-32x32.png" sizes="32x32">
+    <link rel="icon" type="image/png" href="https://datamade.us/favicon-16x16.png" sizes="16x16">
+    <meta name="application-name" content="DataMade">
+    <meta name="msapplication-TileColor" content="#FFFFFF">
+    <meta name="msapplication-TileImage" content="https://datamade.us/mstile-144x144.png">
+
+    <!-- Styles -->
+    <link href="./Modern Approaches to Schema Matching - DataMade_files/css" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="./Modern Approaches to Schema Matching - DataMade_files/bootstrap.min.css">
+    <link rel="stylesheet" href="./Modern Approaches to Schema Matching - DataMade_files/font-awesome.min.css">
+    <link rel="stylesheet" href="./Modern Approaches to Schema Matching - DataMade_files/custom.css">
+    <link rel="stylesheet" href="./Modern Approaches to Schema Matching - DataMade_files/default.css">
+
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script type="text/javascript" src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+    <script type="text/javascript" async="" src="./Modern Approaches to Schema Matching - DataMade_files/ga.js.Download"></script><script src="./Modern Approaches to Schema Matching - DataMade_files/jquery-1.11.2.min.js.Download"></script>
+    <script src="./Modern Approaches to Schema Matching - DataMade_files/bootstrap.min.js.Download"></script>
+
+  <style type="text/css">.MathJax_Hover_Frame {border-radius: .25em; -webkit-border-radius: .25em; -moz-border-radius: .25em; -khtml-border-radius: .25em; box-shadow: 0px 0px 15px #83A; -webkit-box-shadow: 0px 0px 15px #83A; -moz-box-shadow: 0px 0px 15px #83A; -khtml-box-shadow: 0px 0px 15px #83A; border: 1px solid #A6D ! important; display: inline-block; position: absolute}
+.MathJax_Menu_Button .MathJax_Hover_Arrow {position: absolute; cursor: pointer; display: inline-block; border: 2px solid #AAA; border-radius: 4px; -webkit-border-radius: 4px; -moz-border-radius: 4px; -khtml-border-radius: 4px; font-family: 'Courier New',Courier; font-size: 9px; color: #F0F0F0}
+.MathJax_Menu_Button .MathJax_Hover_Arrow span {display: block; background-color: #AAA; border: 1px solid; border-radius: 3px; line-height: 0; padding: 4px}
+.MathJax_Hover_Arrow:hover {color: white!important; border: 2px solid #CCC!important}
+.MathJax_Hover_Arrow:hover span {background-color: #CCC!important}
+</style><style type="text/css">#MathJax_About {position: fixed; left: 50%; width: auto; text-align: center; border: 3px outset; padding: 1em 2em; background-color: #DDDDDD; color: black; cursor: default; font-family: message-box; font-size: 120%; font-style: normal; text-indent: 0; text-transform: none; line-height: normal; letter-spacing: normal; word-spacing: normal; word-wrap: normal; white-space: nowrap; float: none; z-index: 201; border-radius: 15px; -webkit-border-radius: 15px; -moz-border-radius: 15px; -khtml-border-radius: 15px; box-shadow: 0px 10px 20px #808080; -webkit-box-shadow: 0px 10px 20px #808080; -moz-box-shadow: 0px 10px 20px #808080; -khtml-box-shadow: 0px 10px 20px #808080; filter: progid:DXImageTransform.Microsoft.dropshadow(OffX=2, OffY=2, Color='gray', Positive='true')}
+#MathJax_About.MathJax_MousePost {outline: none}
+.MathJax_Menu {position: absolute; background-color: white; color: black; width: auto; padding: 2px; border: 1px solid #CCCCCC; margin: 0; cursor: default; font: menu; text-align: left; text-indent: 0; text-transform: none; line-height: normal; letter-spacing: normal; word-spacing: normal; word-wrap: normal; white-space: nowrap; float: none; z-index: 201; box-shadow: 0px 10px 20px #808080; -webkit-box-shadow: 0px 10px 20px #808080; -moz-box-shadow: 0px 10px 20px #808080; -khtml-box-shadow: 0px 10px 20px #808080; filter: progid:DXImageTransform.Microsoft.dropshadow(OffX=2, OffY=2, Color='gray', Positive='true')}
+.MathJax_MenuItem {padding: 2px 2em; background: transparent}
+.MathJax_MenuArrow {position: absolute; right: .5em; padding-top: .25em; color: #666666; font-size: .75em}
+.MathJax_MenuActive .MathJax_MenuArrow {color: white}
+.MathJax_MenuArrow.RTL {left: .5em; right: auto}
+.MathJax_MenuCheck {position: absolute; left: .7em}
+.MathJax_MenuCheck.RTL {right: .7em; left: auto}
+.MathJax_MenuRadioCheck {position: absolute; left: 1em}
+.MathJax_MenuRadioCheck.RTL {right: 1em; left: auto}
+.MathJax_MenuLabel {padding: 2px 2em 4px 1.33em; font-style: italic}
+.MathJax_MenuRule {border-top: 1px solid #CCCCCC; margin: 4px 1px 0px}
+.MathJax_MenuDisabled {color: GrayText}
+.MathJax_MenuActive {background-color: Highlight; color: HighlightText}
+.MathJax_MenuDisabled:focus, .MathJax_MenuLabel:focus {background-color: #E8E8E8}
+.MathJax_ContextMenu:focus {outline: none}
+.MathJax_ContextMenu .MathJax_MenuItem:focus {outline: none}
+#MathJax_AboutClose {top: .2em; right: .2em}
+.MathJax_Menu .MathJax_MenuClose {top: -10px; left: -10px}
+.MathJax_MenuClose {position: absolute; cursor: pointer; display: inline-block; border: 2px solid #AAA; border-radius: 18px; -webkit-border-radius: 18px; -moz-border-radius: 18px; -khtml-border-radius: 18px; font-family: 'Courier New',Courier; font-size: 24px; color: #F0F0F0}
+.MathJax_MenuClose span {display: block; background-color: #AAA; border: 1.5px solid; border-radius: 18px; -webkit-border-radius: 18px; -moz-border-radius: 18px; -khtml-border-radius: 18px; line-height: 0; padding: 8px 0 6px}
+.MathJax_MenuClose:hover {color: white!important; border: 2px solid #CCC!important}
+.MathJax_MenuClose:hover span {background-color: #CCC!important}
+.MathJax_MenuClose:hover:focus {outline: none}
+</style><style type="text/css">.MathJax_Preview .MJXf-math {color: inherit!important}
+</style><style type="text/css">.MJX_Assistive_MathML {position: absolute!important; top: 0; left: 0; clip: rect(1px, 1px, 1px, 1px); padding: 1px 0 0 0!important; border: 0!important; height: 1px!important; width: 1px!important; overflow: hidden!important; display: block!important; -webkit-touch-callout: none; -webkit-user-select: none; -khtml-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none}
+.MJX_Assistive_MathML.MJX_Assistive_MathML_Block {width: 100%!important}
+</style><style type="text/css">#MathJax_Zoom {position: absolute; background-color: #F0F0F0; overflow: auto; display: block; z-index: 301; padding: .5em; border: 1px solid black; margin: 0; font-weight: normal; font-style: normal; text-align: left; text-indent: 0; text-transform: none; line-height: normal; letter-spacing: normal; word-spacing: normal; word-wrap: normal; white-space: nowrap; float: none; -webkit-box-sizing: content-box; -moz-box-sizing: content-box; box-sizing: content-box; box-shadow: 5px 5px 15px #AAAAAA; -webkit-box-shadow: 5px 5px 15px #AAAAAA; -moz-box-shadow: 5px 5px 15px #AAAAAA; -khtml-box-shadow: 5px 5px 15px #AAAAAA; filter: progid:DXImageTransform.Microsoft.dropshadow(OffX=2, OffY=2, Color='gray', Positive='true')}
+#MathJax_ZoomOverlay {position: absolute; left: 0; top: 0; z-index: 300; display: inline-block; width: 100%; height: 100%; border: 0; padding: 0; margin: 0; background-color: white; opacity: 0; filter: alpha(opacity=0)}
+#MathJax_ZoomFrame {position: relative; display: inline-block; height: 0; width: 0}
+#MathJax_ZoomEventTrap {position: absolute; left: 0; top: 0; z-index: 302; display: inline-block; border: 0; padding: 0; margin: 0; background-color: white; opacity: 0; filter: alpha(opacity=0)}
+</style><style type="text/css">.MathJax_Preview {color: #888}
+#MathJax_Message {position: fixed; left: 1em; bottom: 1.5em; background-color: #E6E6E6; border: 1px solid #959595; margin: 0px; padding: 2px 8px; z-index: 102; color: black; font-size: 80%; width: auto; white-space: nowrap}
+#MathJax_MSIE_Frame {position: absolute; top: 0; left: 0; width: 0px; z-index: 101; border: 0px; margin: 0px; padding: 0px}
+.MathJax_Error {color: #CC0000; font-style: italic}
+</style><style type="text/css">.MJXp-script {font-size: .8em}
+.MJXp-right {-webkit-transform-origin: right; -moz-transform-origin: right; -ms-transform-origin: right; -o-transform-origin: right; transform-origin: right}
+.MJXp-bold {font-weight: bold}
+.MJXp-italic {font-style: italic}
+.MJXp-scr {font-family: MathJax_Script,'Times New Roman',Times,STIXGeneral,serif}
+.MJXp-frak {font-family: MathJax_Fraktur,'Times New Roman',Times,STIXGeneral,serif}
+.MJXp-sf {font-family: MathJax_SansSerif,'Times New Roman',Times,STIXGeneral,serif}
+.MJXp-cal {font-family: MathJax_Caligraphic,'Times New Roman',Times,STIXGeneral,serif}
+.MJXp-mono {font-family: MathJax_Typewriter,'Times New Roman',Times,STIXGeneral,serif}
+.MJXp-largeop {font-size: 150%}
+.MJXp-largeop.MJXp-int {vertical-align: -.2em}
+.MJXp-math {display: inline-block; line-height: 1.2; text-indent: 0; font-family: 'Times New Roman',Times,STIXGeneral,serif; white-space: nowrap; border-collapse: collapse}
+.MJXp-display {display: block; text-align: center; margin: 1em 0}
+.MJXp-math span {display: inline-block}
+.MJXp-box {display: block!important; text-align: center}
+.MJXp-box:after {content: " "}
+.MJXp-rule {display: block!important; margin-top: .1em}
+.MJXp-char {display: block!important}
+.MJXp-mo {margin: 0 .15em}
+.MJXp-mfrac {margin: 0 .125em; vertical-align: .25em}
+.MJXp-denom {display: inline-table!important; width: 100%}
+.MJXp-denom > * {display: table-row!important}
+.MJXp-surd {vertical-align: top}
+.MJXp-surd > * {display: block!important}
+.MJXp-script-box > *  {display: table!important; height: 50%}
+.MJXp-script-box > * > * {display: table-cell!important; vertical-align: top}
+.MJXp-script-box > *:last-child > * {vertical-align: bottom}
+.MJXp-script-box > * > * > * {display: block!important}
+.MJXp-mphantom {visibility: hidden}
+.MJXp-munderover {display: inline-table!important}
+.MJXp-over {display: inline-block!important; text-align: center}
+.MJXp-over > * {display: block!important}
+.MJXp-munderover > * {display: table-row!important}
+.MJXp-mtable {vertical-align: .25em; margin: 0 .125em}
+.MJXp-mtable > * {display: inline-table!important; vertical-align: middle}
+.MJXp-mtr {display: table-row!important}
+.MJXp-mtd {display: table-cell!important; text-align: center; padding: .5em 0 0 .5em}
+.MJXp-mtr > .MJXp-mtd:first-child {padding-left: 0}
+.MJXp-mtr:first-child > .MJXp-mtd {padding-top: 0}
+.MJXp-mlabeledtr {display: table-row!important}
+.MJXp-mlabeledtr > .MJXp-mtd:first-child {padding-left: 0}
+.MJXp-mlabeledtr:first-child > .MJXp-mtd {padding-top: 0}
+.MJXp-merror {background-color: #FFFF88; color: #CC0000; border: 1px solid #CC0000; padding: 1px 3px; font-style: normal; font-size: 90%}
+.MJXp-scale0 {-webkit-transform: scaleX(.0); -moz-transform: scaleX(.0); -ms-transform: scaleX(.0); -o-transform: scaleX(.0); transform: scaleX(.0)}
+.MJXp-scale1 {-webkit-transform: scaleX(.1); -moz-transform: scaleX(.1); -ms-transform: scaleX(.1); -o-transform: scaleX(.1); transform: scaleX(.1)}
+.MJXp-scale2 {-webkit-transform: scaleX(.2); -moz-transform: scaleX(.2); -ms-transform: scaleX(.2); -o-transform: scaleX(.2); transform: scaleX(.2)}
+.MJXp-scale3 {-webkit-transform: scaleX(.3); -moz-transform: scaleX(.3); -ms-transform: scaleX(.3); -o-transform: scaleX(.3); transform: scaleX(.3)}
+.MJXp-scale4 {-webkit-transform: scaleX(.4); -moz-transform: scaleX(.4); -ms-transform: scaleX(.4); -o-transform: scaleX(.4); transform: scaleX(.4)}
+.MJXp-scale5 {-webkit-transform: scaleX(.5); -moz-transform: scaleX(.5); -ms-transform: scaleX(.5); -o-transform: scaleX(.5); transform: scaleX(.5)}
+.MJXp-scale6 {-webkit-transform: scaleX(.6); -moz-transform: scaleX(.6); -ms-transform: scaleX(.6); -o-transform: scaleX(.6); transform: scaleX(.6)}
+.MJXp-scale7 {-webkit-transform: scaleX(.7); -moz-transform: scaleX(.7); -ms-transform: scaleX(.7); -o-transform: scaleX(.7); transform: scaleX(.7)}
+.MJXp-scale8 {-webkit-transform: scaleX(.8); -moz-transform: scaleX(.8); -ms-transform: scaleX(.8); -o-transform: scaleX(.8); transform: scaleX(.8)}
+.MJXp-scale9 {-webkit-transform: scaleX(.9); -moz-transform: scaleX(.9); -ms-transform: scaleX(.9); -o-transform: scaleX(.9); transform: scaleX(.9)}
+.MathJax_PHTML .noError {vertical-align: ; font-size: 90%; text-align: left; color: black; padding: 1px 3px; border: 1px solid}
+</style><style type="text/css">.mjx-chtml {display: inline-block; line-height: 0; text-indent: 0; text-align: left; text-transform: none; font-style: normal; font-weight: normal; font-size: 100%; font-size-adjust: none; letter-spacing: normal; word-wrap: normal; word-spacing: normal; white-space: nowrap; float: none; direction: ltr; max-width: none; max-height: none; min-width: 0; min-height: 0; border: 0; margin: 0; padding: 1px 0}
+.MJXc-display {display: block; text-align: center; margin: 1em 0; padding: 0}
+.mjx-chtml[tabindex]:focus, body :focus .mjx-chtml[tabindex] {display: inline-table}
+.mjx-full-width {text-align: center; display: table-cell!important; width: 10000em}
+.mjx-math {display: inline-block; border-collapse: separate; border-spacing: 0}
+.mjx-math * {display: inline-block; -webkit-box-sizing: content-box!important; -moz-box-sizing: content-box!important; box-sizing: content-box!important; text-align: left}
+.mjx-numerator {display: block; text-align: center}
+.mjx-denominator {display: block; text-align: center}
+.MJXc-stacked {height: 0; position: relative}
+.MJXc-stacked > * {position: absolute}
+.MJXc-bevelled > * {display: inline-block}
+.mjx-stack {display: inline-block}
+.mjx-op {display: block}
+.mjx-under {display: table-cell}
+.mjx-over {display: block}
+.mjx-over > * {padding-left: 0px!important; padding-right: 0px!important}
+.mjx-under > * {padding-left: 0px!important; padding-right: 0px!important}
+.mjx-stack > .mjx-sup {display: block}
+.mjx-stack > .mjx-sub {display: block}
+.mjx-prestack > .mjx-presup {display: block}
+.mjx-prestack > .mjx-presub {display: block}
+.mjx-delim-h > .mjx-char {display: inline-block}
+.mjx-surd {vertical-align: top}
+.mjx-mphantom * {visibility: hidden}
+.mjx-merror {background-color: #FFFF88; color: #CC0000; border: 1px solid #CC0000; padding: 2px 3px; font-style: normal; font-size: 90%}
+.mjx-annotation-xml {line-height: normal}
+.mjx-menclose > svg {fill: none; stroke: currentColor}
+.mjx-mtr {display: table-row}
+.mjx-mlabeledtr {display: table-row}
+.mjx-mtd {display: table-cell; text-align: center}
+.mjx-label {display: table-row}
+.mjx-box {display: inline-block}
+.mjx-block {display: block}
+.mjx-span {display: inline}
+.mjx-char {display: block; white-space: pre}
+.mjx-itable {display: inline-table; width: auto}
+.mjx-row {display: table-row}
+.mjx-cell {display: table-cell}
+.mjx-table {display: table; width: 100%}
+.mjx-line {display: block; height: 0}
+.mjx-strut {width: 0; padding-top: 1em}
+.mjx-vsize {width: 0}
+.MJXc-space1 {margin-left: .167em}
+.MJXc-space2 {margin-left: .222em}
+.MJXc-space3 {margin-left: .278em}
+.mjx-chartest {display: block; visibility: hidden; position: absolute; top: 0; line-height: normal; font-size: 500%}
+.mjx-chartest .mjx-char {display: inline}
+.mjx-chartest .mjx-box {padding-top: 1000px}
+.MJXc-processing {visibility: hidden; position: fixed; width: 0; height: 0; overflow: hidden}
+.MJXc-processed {display: none}
+.mjx-test {display: block; font-style: normal; font-weight: normal; font-size: 100%; font-size-adjust: none; text-indent: 0; text-transform: none; letter-spacing: normal; word-spacing: normal; overflow: hidden; height: 1px}
+.mjx-ex-box-test {position: absolute; overflow: hidden; width: 1px; height: 60ex}
+.mjx-line-box-test {display: table!important}
+.mjx-line-box-test span {display: table-cell!important; width: 10000em!important; min-width: 0; max-width: none; padding: 0; border: 0; margin: 0}
+#MathJax_CHTML_Tooltip {background-color: InfoBackground; color: InfoText; border: 1px solid black; box-shadow: 2px 2px 5px #AAAAAA; -webkit-box-shadow: 2px 2px 5px #AAAAAA; -moz-box-shadow: 2px 2px 5px #AAAAAA; -khtml-box-shadow: 2px 2px 5px #AAAAAA; padding: 3px 4px; z-index: 401; position: absolute; left: 0; top: 0; width: auto; height: auto; display: none}
+.mjx-chtml .mjx-noError {line-height: 1.2; vertical-align: ; font-size: 90%; text-align: left; color: black; padding: 1px 3px; border: 1px solid}
+.MJXc-TeX-unknown-R {font-family: STIXGeneral,'Cambria Math','Arial Unicode MS',serif; font-style: normal; font-weight: normal}
+.MJXc-TeX-unknown-I {font-family: STIXGeneral,'Cambria Math','Arial Unicode MS',serif; font-style: italic; font-weight: normal}
+.MJXc-TeX-unknown-B {font-family: STIXGeneral,'Cambria Math','Arial Unicode MS',serif; font-style: normal; font-weight: bold}
+.MJXc-TeX-unknown-BI {font-family: STIXGeneral,'Cambria Math','Arial Unicode MS',serif; font-style: italic; font-weight: bold}
+.MJXc-TeX-ams-R {font-family: MJXc-TeX-ams-R,MJXc-TeX-ams-Rw}
+.MJXc-TeX-cal-B {font-family: MJXc-TeX-cal-B,MJXc-TeX-cal-Bx,MJXc-TeX-cal-Bw}
+.MJXc-TeX-frak-R {font-family: MJXc-TeX-frak-R,MJXc-TeX-frak-Rw}
+.MJXc-TeX-frak-B {font-family: MJXc-TeX-frak-B,MJXc-TeX-frak-Bx,MJXc-TeX-frak-Bw}
+.MJXc-TeX-math-BI {font-family: MJXc-TeX-math-BI,MJXc-TeX-math-BIx,MJXc-TeX-math-BIw}
+.MJXc-TeX-sans-R {font-family: MJXc-TeX-sans-R,MJXc-TeX-sans-Rw}
+.MJXc-TeX-sans-B {font-family: MJXc-TeX-sans-B,MJXc-TeX-sans-Bx,MJXc-TeX-sans-Bw}
+.MJXc-TeX-sans-I {font-family: MJXc-TeX-sans-I,MJXc-TeX-sans-Ix,MJXc-TeX-sans-Iw}
+.MJXc-TeX-script-R {font-family: MJXc-TeX-script-R,MJXc-TeX-script-Rw}
+.MJXc-TeX-type-R {font-family: MJXc-TeX-type-R,MJXc-TeX-type-Rw}
+.MJXc-TeX-cal-R {font-family: MJXc-TeX-cal-R,MJXc-TeX-cal-Rw}
+.MJXc-TeX-main-B {font-family: MJXc-TeX-main-B,MJXc-TeX-main-Bx,MJXc-TeX-main-Bw}
+.MJXc-TeX-main-I {font-family: MJXc-TeX-main-I,MJXc-TeX-main-Ix,MJXc-TeX-main-Iw}
+.MJXc-TeX-main-R {font-family: MJXc-TeX-main-R,MJXc-TeX-main-Rw}
+.MJXc-TeX-math-I {font-family: MJXc-TeX-math-I,MJXc-TeX-math-Ix,MJXc-TeX-math-Iw}
+.MJXc-TeX-size1-R {font-family: MJXc-TeX-size1-R,MJXc-TeX-size1-Rw}
+.MJXc-TeX-size2-R {font-family: MJXc-TeX-size2-R,MJXc-TeX-size2-Rw}
+.MJXc-TeX-size3-R {font-family: MJXc-TeX-size3-R,MJXc-TeX-size3-Rw}
+.MJXc-TeX-size4-R {font-family: MJXc-TeX-size4-R,MJXc-TeX-size4-Rw}
+.MJXc-TeX-vec-R {font-family: MJXc-TeX-vec-R,MJXc-TeX-vec-Rw}
+.MJXc-TeX-vec-B {font-family: MJXc-TeX-vec-B,MJXc-TeX-vec-Bx,MJXc-TeX-vec-Bw}
+@font-face {font-family: MJXc-TeX-ams-R; src: local('MathJax_AMS'), local('MathJax_AMS-Regular')}
+@font-face {font-family: MJXc-TeX-ams-Rw; src /*1*/: url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/fonts/HTML-CSS/TeX/eot/MathJax_AMS-Regular.eot'); src /*2*/: url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/fonts/HTML-CSS/TeX/woff/MathJax_AMS-Regular.woff') format('woff'), url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/fonts/HTML-CSS/TeX/otf/MathJax_AMS-Regular.otf') format('opentype')}
+@font-face {font-family: MJXc-TeX-cal-B; src: local('MathJax_Caligraphic Bold'), local('MathJax_Caligraphic-Bold')}
+@font-face {font-family: MJXc-TeX-cal-Bx; src: local('MathJax_Caligraphic'); font-weight: bold}
+@font-face {font-family: MJXc-TeX-cal-Bw; src /*1*/: url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/fonts/HTML-CSS/TeX/eot/MathJax_Caligraphic-Bold.eot'); src /*2*/: url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/fonts/HTML-CSS/TeX/woff/MathJax_Caligraphic-Bold.woff') format('woff'), url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/fonts/HTML-CSS/TeX/otf/MathJax_Caligraphic-Bold.otf') format('opentype')}
+@font-face {font-family: MJXc-TeX-frak-R; src: local('MathJax_Fraktur'), local('MathJax_Fraktur-Regular')}
+@font-face {font-family: MJXc-TeX-frak-Rw; src /*1*/: url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/fonts/HTML-CSS/TeX/eot/MathJax_Fraktur-Regular.eot'); src /*2*/: url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/fonts/HTML-CSS/TeX/woff/MathJax_Fraktur-Regular.woff') format('woff'), url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/fonts/HTML-CSS/TeX/otf/MathJax_Fraktur-Regular.otf') format('opentype')}
+@font-face {font-family: MJXc-TeX-frak-B; src: local('MathJax_Fraktur Bold'), local('MathJax_Fraktur-Bold')}
+@font-face {font-family: MJXc-TeX-frak-Bx; src: local('MathJax_Fraktur'); font-weight: bold}
+@font-face {font-family: MJXc-TeX-frak-Bw; src /*1*/: url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/fonts/HTML-CSS/TeX/eot/MathJax_Fraktur-Bold.eot'); src /*2*/: url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/fonts/HTML-CSS/TeX/woff/MathJax_Fraktur-Bold.woff') format('woff'), url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/fonts/HTML-CSS/TeX/otf/MathJax_Fraktur-Bold.otf') format('opentype')}
+@font-face {font-family: MJXc-TeX-math-BI; src: local('MathJax_Math BoldItalic'), local('MathJax_Math-BoldItalic')}
+@font-face {font-family: MJXc-TeX-math-BIx; src: local('MathJax_Math'); font-weight: bold; font-style: italic}
+@font-face {font-family: MJXc-TeX-math-BIw; src /*1*/: url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/fonts/HTML-CSS/TeX/eot/MathJax_Math-BoldItalic.eot'); src /*2*/: url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/fonts/HTML-CSS/TeX/woff/MathJax_Math-BoldItalic.woff') format('woff'), url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/fonts/HTML-CSS/TeX/otf/MathJax_Math-BoldItalic.otf') format('opentype')}
+@font-face {font-family: MJXc-TeX-sans-R; src: local('MathJax_SansSerif'), local('MathJax_SansSerif-Regular')}
+@font-face {font-family: MJXc-TeX-sans-Rw; src /*1*/: url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/fonts/HTML-CSS/TeX/eot/MathJax_SansSerif-Regular.eot'); src /*2*/: url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/fonts/HTML-CSS/TeX/woff/MathJax_SansSerif-Regular.woff') format('woff'), url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/fonts/HTML-CSS/TeX/otf/MathJax_SansSerif-Regular.otf') format('opentype')}
+@font-face {font-family: MJXc-TeX-sans-B; src: local('MathJax_SansSerif Bold'), local('MathJax_SansSerif-Bold')}
+@font-face {font-family: MJXc-TeX-sans-Bx; src: local('MathJax_SansSerif'); font-weight: bold}
+@font-face {font-family: MJXc-TeX-sans-Bw; src /*1*/: url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/fonts/HTML-CSS/TeX/eot/MathJax_SansSerif-Bold.eot'); src /*2*/: url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/fonts/HTML-CSS/TeX/woff/MathJax_SansSerif-Bold.woff') format('woff'), url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/fonts/HTML-CSS/TeX/otf/MathJax_SansSerif-Bold.otf') format('opentype')}
+@font-face {font-family: MJXc-TeX-sans-I; src: local('MathJax_SansSerif Italic'), local('MathJax_SansSerif-Italic')}
+@font-face {font-family: MJXc-TeX-sans-Ix; src: local('MathJax_SansSerif'); font-style: italic}
+@font-face {font-family: MJXc-TeX-sans-Iw; src /*1*/: url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/fonts/HTML-CSS/TeX/eot/MathJax_SansSerif-Italic.eot'); src /*2*/: url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/fonts/HTML-CSS/TeX/woff/MathJax_SansSerif-Italic.woff') format('woff'), url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/fonts/HTML-CSS/TeX/otf/MathJax_SansSerif-Italic.otf') format('opentype')}
+@font-face {font-family: MJXc-TeX-script-R; src: local('MathJax_Script'), local('MathJax_Script-Regular')}
+@font-face {font-family: MJXc-TeX-script-Rw; src /*1*/: url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/fonts/HTML-CSS/TeX/eot/MathJax_Script-Regular.eot'); src /*2*/: url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/fonts/HTML-CSS/TeX/woff/MathJax_Script-Regular.woff') format('woff'), url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/fonts/HTML-CSS/TeX/otf/MathJax_Script-Regular.otf') format('opentype')}
+@font-face {font-family: MJXc-TeX-type-R; src: local('MathJax_Typewriter'), local('MathJax_Typewriter-Regular')}
+@font-face {font-family: MJXc-TeX-type-Rw; src /*1*/: url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/fonts/HTML-CSS/TeX/eot/MathJax_Typewriter-Regular.eot'); src /*2*/: url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/fonts/HTML-CSS/TeX/woff/MathJax_Typewriter-Regular.woff') format('woff'), url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/fonts/HTML-CSS/TeX/otf/MathJax_Typewriter-Regular.otf') format('opentype')}
+@font-face {font-family: MJXc-TeX-cal-R; src: local('MathJax_Caligraphic'), local('MathJax_Caligraphic-Regular')}
+@font-face {font-family: MJXc-TeX-cal-Rw; src /*1*/: url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/fonts/HTML-CSS/TeX/eot/MathJax_Caligraphic-Regular.eot'); src /*2*/: url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/fonts/HTML-CSS/TeX/woff/MathJax_Caligraphic-Regular.woff') format('woff'), url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/fonts/HTML-CSS/TeX/otf/MathJax_Caligraphic-Regular.otf') format('opentype')}
+@font-face {font-family: MJXc-TeX-main-B; src: local('MathJax_Main Bold'), local('MathJax_Main-Bold')}
+@font-face {font-family: MJXc-TeX-main-Bx; src: local('MathJax_Main'); font-weight: bold}
+@font-face {font-family: MJXc-TeX-main-Bw; src /*1*/: url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/fonts/HTML-CSS/TeX/eot/MathJax_Main-Bold.eot'); src /*2*/: url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/fonts/HTML-CSS/TeX/woff/MathJax_Main-Bold.woff') format('woff'), url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/fonts/HTML-CSS/TeX/otf/MathJax_Main-Bold.otf') format('opentype')}
+@font-face {font-family: MJXc-TeX-main-I; src: local('MathJax_Main Italic'), local('MathJax_Main-Italic')}
+@font-face {font-family: MJXc-TeX-main-Ix; src: local('MathJax_Main'); font-style: italic}
+@font-face {font-family: MJXc-TeX-main-Iw; src /*1*/: url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/fonts/HTML-CSS/TeX/eot/MathJax_Main-Italic.eot'); src /*2*/: url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/fonts/HTML-CSS/TeX/woff/MathJax_Main-Italic.woff') format('woff'), url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/fonts/HTML-CSS/TeX/otf/MathJax_Main-Italic.otf') format('opentype')}
+@font-face {font-family: MJXc-TeX-main-R; src: local('MathJax_Main'), local('MathJax_Main-Regular')}
+@font-face {font-family: MJXc-TeX-main-Rw; src /*1*/: url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/fonts/HTML-CSS/TeX/eot/MathJax_Main-Regular.eot'); src /*2*/: url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/fonts/HTML-CSS/TeX/woff/MathJax_Main-Regular.woff') format('woff'), url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/fonts/HTML-CSS/TeX/otf/MathJax_Main-Regular.otf') format('opentype')}
+@font-face {font-family: MJXc-TeX-math-I; src: local('MathJax_Math Italic'), local('MathJax_Math-Italic')}
+@font-face {font-family: MJXc-TeX-math-Ix; src: local('MathJax_Math'); font-style: italic}
+@font-face {font-family: MJXc-TeX-math-Iw; src /*1*/: url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/fonts/HTML-CSS/TeX/eot/MathJax_Math-Italic.eot'); src /*2*/: url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/fonts/HTML-CSS/TeX/woff/MathJax_Math-Italic.woff') format('woff'), url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/fonts/HTML-CSS/TeX/otf/MathJax_Math-Italic.otf') format('opentype')}
+@font-face {font-family: MJXc-TeX-size1-R; src: local('MathJax_Size1'), local('MathJax_Size1-Regular')}
+@font-face {font-family: MJXc-TeX-size1-Rw; src /*1*/: url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/fonts/HTML-CSS/TeX/eot/MathJax_Size1-Regular.eot'); src /*2*/: url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/fonts/HTML-CSS/TeX/woff/MathJax_Size1-Regular.woff') format('woff'), url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/fonts/HTML-CSS/TeX/otf/MathJax_Size1-Regular.otf') format('opentype')}
+@font-face {font-family: MJXc-TeX-size2-R; src: local('MathJax_Size2'), local('MathJax_Size2-Regular')}
+@font-face {font-family: MJXc-TeX-size2-Rw; src /*1*/: url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/fonts/HTML-CSS/TeX/eot/MathJax_Size2-Regular.eot'); src /*2*/: url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/fonts/HTML-CSS/TeX/woff/MathJax_Size2-Regular.woff') format('woff'), url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/fonts/HTML-CSS/TeX/otf/MathJax_Size2-Regular.otf') format('opentype')}
+@font-face {font-family: MJXc-TeX-size3-R; src: local('MathJax_Size3'), local('MathJax_Size3-Regular')}
+@font-face {font-family: MJXc-TeX-size3-Rw; src /*1*/: url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/fonts/HTML-CSS/TeX/eot/MathJax_Size3-Regular.eot'); src /*2*/: url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/fonts/HTML-CSS/TeX/woff/MathJax_Size3-Regular.woff') format('woff'), url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/fonts/HTML-CSS/TeX/otf/MathJax_Size3-Regular.otf') format('opentype')}
+@font-face {font-family: MJXc-TeX-size4-R; src: local('MathJax_Size4'), local('MathJax_Size4-Regular')}
+@font-face {font-family: MJXc-TeX-size4-Rw; src /*1*/: url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/fonts/HTML-CSS/TeX/eot/MathJax_Size4-Regular.eot'); src /*2*/: url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/fonts/HTML-CSS/TeX/woff/MathJax_Size4-Regular.woff') format('woff'), url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/fonts/HTML-CSS/TeX/otf/MathJax_Size4-Regular.otf') format('opentype')}
+@font-face {font-family: MJXc-TeX-vec-R; src: local('MathJax_Vector'), local('MathJax_Vector-Regular')}
+@font-face {font-family: MJXc-TeX-vec-Rw; src /*1*/: url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/fonts/HTML-CSS/TeX/eot/MathJax_Vector-Regular.eot'); src /*2*/: url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/fonts/HTML-CSS/TeX/woff/MathJax_Vector-Regular.woff') format('woff'), url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/fonts/HTML-CSS/TeX/otf/MathJax_Vector-Regular.otf') format('opentype')}
+@font-face {font-family: MJXc-TeX-vec-B; src: local('MathJax_Vector Bold'), local('MathJax_Vector-Bold')}
+@font-face {font-family: MJXc-TeX-vec-Bx; src: local('MathJax_Vector'); font-weight: bold}
+@font-face {font-family: MJXc-TeX-vec-Bw; src /*1*/: url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/fonts/HTML-CSS/TeX/eot/MathJax_Vector-Bold.eot'); src /*2*/: url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/fonts/HTML-CSS/TeX/woff/MathJax_Vector-Bold.woff') format('woff'), url('https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/fonts/HTML-CSS/TeX/otf/MathJax_Vector-Bold.otf') format('opentype')}
+</style></head>
+  <body data-gr-c-s-loaded="true"><div id="MathJax_Message" style="display: none;"></div>
+    <nav class="navbar navbar-default">
+      <div class="container-fluid">
+        <div class="row">
+          <div class="col-sm-10 col-sm-offset-1">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              <a class="navbar-brand" href="https://datamade.us/">
+                <img alt="DataMade" src="./Modern Approaches to Schema Matching - DataMade_files/datamade_logo.png">
+              </a>
+            </div>
+            <div id="navbar" class="collapse navbar-collapse">
+              <ul class="nav navbar-nav navbar-right">
+                
+                  
+                  
+
+                  <li class="">
+                    <a href="https://datamade.us/index.html"><i class="fa fa-home"></i></a>
+                  </li>
+                
+                  
+                  
+
+                  <li class="">
+                    <a href="https://datamade.us/our-work/index.html">Our work</a>
+                  </li>
+                
+                  
+                  
+
+                  <li class="">
+                    <a href="https://datamade.us/services/index.html">Services</a>
+                  </li>
+                
+                  
+                  
+
+                  <li class="">
+                    <a href="https://datamade.us/blog/index.html">Blog</a>
+                  </li>
+                
+                  
+                  
+
+                  <li class="">
+                    <a href="https://datamade.us/team/index.html">Team</a>
+                  </li>
+                
+                  
+                  
+
+                  <li class="">
+                    <a href="https://datamade.us/careers/index.html">Careers</a>
+                  </li>
+                
+                  
+                  
+
+                  <li class="">
+                    <a href="https://datamade.us/about-us/index.html">About</a>
+                  </li>
+                
+                  
+                  
+
+                  <li class="">
+                    <a href="https://datamade.us/contact-us/index.html">Contact</a>
+                  </li>
+                
+              </ul>
+            </div><!--/.nav-collapse -->
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-sm-10 col-sm-offset-1">
+
+          <div class="row">
+  <div class="col-sm-2">
+    <p><a href="https://datamade.us/blog">« back to blog</a></p>
+
+    
+      <a href="https://twitter.com/forestgregg">
+        <img class="img-circle author-headshot hidden-phone" src="./Modern Approaches to Schema Matching - DataMade_files/forest-gregg.jpg" alt="Forest Gregg">
+      </a>
+      <h4>
+        <a href="https://twitter.com/forestgregg">Forest Gregg</a>
+      </h4>
+    
+
+    
+      
+        <img class="img-circle author-headshot hidden-phone" src="./Modern Approaches to Schema Matching - DataMade_files/no-image.jpg" alt="Peter Xu">
+        <h4>Peter Xu</h4>
+      
+    
+
+    
+
+  </div>
+
+  <div class="col-sm-9 post">
+    <h1>
+      Modern Approaches to Schema Matching
+    </h1>
+
+    
+
+    <p class="muted">Published on Dec 12, 2017</p>
+
+    <p class="text-center">
+    <img src="./Modern Approaches to Schema Matching - DataMade_files/schema-matching.jpg" alt="Schema matching is about finding columns that are about the same type of things, like sorting beads." class="img-thumbnail">
+
+    <br>
+
+    <small><em>Schema matching is about finding columns that are about the same type of things, like sorting beads. Photo by <a href="https://www.flickr.com/photos/13698839@N00/3001363490/in/photolist-5zdLNo-9i8HHf-pmEayG-dGt4n7-dGt5pW-56awoY-ds9vTS">Janet on Flickr</a></em></small>
+</p>
+
+<p>With large collections of data, an analyst often struggles to discover
+all the data that is relevant to her question. For her to do her work,
+the analyst needs to know which datasets could be about her subject and
+what the fields in those datasets might mean. <em>Schema matching</em> attempts
+to carry out these two tasks in an automated or semi-automated way.</p>
+
+<p>More precisely, schema matching addresses two questions.</p>
+
+<ul>
+  <li>Which datasets are likely to contain information about the same type
+of entity?</li>
+  <li>Which fields in separate datasets are likely to contain comparable
+information about an entity?</li>
+</ul>
+
+<p>Either problem is difficult by itself, but schema matching is made even
+trickier because these questions are entangled. For example, in order to
+guess that two columns, from separate tables, are both referring to a
+date of birth, we might need know that the rows in each table are
+referring to people. Conversely, if we knew that two tables each had a
+field that represented a date of birth, we could likely guess that the
+rows are about people.</p>
+
+<h2 id="the-schema-matching-literature">The Schema Matching Literature</h2>
+
+<p>In the early 2000s, schema matching was an active topic of academic
+research. The research was largely motivated by the promise and problems
+of the “Semantic Web,” which envisioned a near-term future where many
+facts about the world were represented in semantically rich machine
+readable formats. For example, some information about the Empire State
+Building could be represented as:</p>
+
+<div class="language-json highlighter-rouge"><pre class="highlight"><code><span class="err">&lt;script</span><span class="w"> </span><span class="err">type=</span><span class="s2">"application/ld+json"</span><span class="err">&gt;</span><span class="w">
+</span><span class="p">{</span><span class="w">
+  </span><span class="nt">"@context"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://schema.org"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"@type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Place"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"geo"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nt">"@type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"GeoCoordinates"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"latitude"</span><span class="p">:</span><span class="w"> </span><span class="s2">"40.75"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"longitude"</span><span class="p">:</span><span class="w"> </span><span class="s2">"73.98"</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Empire State Building"</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span><span class="err">&lt;/script&gt;</span><span class="w">
+</span></code></pre>
+</div>
+
+<p>Where all the meaning of <code class="highlighter-rouge">@context</code>, <code class="highlighter-rouge">@type</code>, <code class="highlighter-rouge">geo</code>, and <code class="highlighter-rouge">name</code> are
+defined more or less precisely at <a href="http://schema.org/Place">http://schema.org/Place</a>. If a
+sizable fraction of human knowledge was represented in this way, then
+machines could begin to deduce new and interesting things through
+syllogistic reasoning. For example, if hotels published semantic
+information about their rooms and restaurants published their menus
+semantically, then computers could help find the best priced room that’s
+close to many restaurants, without the hotels and restaurants even
+being aware of each other.</p>
+
+<p>The Semantic Web quickly ran into two problems. First, it ends up
+being very, very difficult to adequately represent any interesting
+domain of human action in a way that is both unambiguous and that
+supports many different use cases. Publishers of semantic data
+tended to invent their own, idiosyncratic way of representing the data
+that worked for them.</p>
+
+<p>Research in schema matching was focused on harmonizing these
+idiosyncratic representations. Work progressed for a few years until the
+second main problem of the Semantic Web became apparent. Most publishers
+of information never found a compelling reason to publish data in any of
+these formats. Active research fell off sharply by 2005.</p>
+
+<p>Because of this history, the academic literature has two features that
+limit its use for a next-generation data warehouse. First, the
+literature generally assumes that data is represented using controlled,
+semantically rich, and hierarchical data formats. In many data lakes,
+the data is represented in flat tables, column names were chosen
+idiosyncratically, and there is no codebook let alone a machine readable
+description of what each column means.</p>
+
+<p>Second, the methods described in this literature are simplistic. The
+field only had a few years to develop and the active period occurred
+about five years before machine learning techniques were commonly being
+used throughout computer science.</p>
+
+<p>In this memo, we review that literature and highlight opportunities to
+advance upon its ideas. We also will evaluate a number of open source
+toolkits. The COMA matcher<sup id="fnref:coma"><a href="https://datamade.us/blog/schema-matching/#fn:coma" class="footnote">1</a></sup> will be referred to often, as it
+includes most of of the standard schema matching techniques.</p>
+
+<h1 id="comparing-columns">Comparing Columns</h1>
+
+<p>Schema matching starts with trying to identify columns that contain the
+same type of information. Most existing schema matchers do this by
+computing a number of different distance measures for each possible pair
+of columns and then applying some rule to aggregate these into a single
+score for each column pair.</p>
+
+<h2 id="distance-measures">Distance Measures</h2>
+
+<p>The distance measures used in schema matching typically either compare
+the names of columns or the contents of columns.</p>
+
+<h3 id="string-distance">String Distance</h3>
+
+<p>Column names can be compared by calculating the distance between the
+strings of the column names. The simplest measure is an exact match,
+which is 0 if the strings are exactly the same and 1 if not.</p>
+
+<p>Beyond that, there are two broad ways of comparing the distance between
+strings. The first is to calculate how many insertions, deletions, or
+substitutions are required to turn one string into another. For example,
+the pair of <code class="highlighter-rouge">SCHEMA</code> and <code class="highlighter-rouge">SCEMA</code> has an distance of one, because you can transform
+one string into another with either a deletion or an insertion.</p>
+
+<p>Alternately, a string can be treated as a collection of characters and
+we can calculate the overlap between the collections. A simple measure
+of this type is the Jaccard distance</p>
+
+<span class="MathJax_Preview" style="color: inherit; display: none;"></span><span class="mjx-chtml MJXc-display" style="text-align: center;"><span id="MathJax-Element-1-Frame" class="mjx-chtml MathJax_CHTML" tabindex="0" style="font-size: 121%; text-align: center; position: relative;" data-mathml="&lt;math xmlns=&quot;http://www.w3.org/1998/Math/MathML&quot; display=&quot;block&quot;&gt;&lt;mi mathvariant=&quot;normal&quot;&gt;J&lt;/mi&gt;&lt;mo&gt;&amp;#x2061;&lt;/mo&gt;&lt;mo stretchy=&quot;false&quot;&gt;(&lt;/mo&gt;&lt;mi&gt;A&lt;/mi&gt;&lt;mo&gt;,&lt;/mo&gt;&lt;mi&gt;B&lt;/mi&gt;&lt;mo stretchy=&quot;false&quot;&gt;)&lt;/mo&gt;&lt;mo&gt;=&lt;/mo&gt;&lt;mn&gt;1&lt;/mn&gt;&lt;mo&gt;&amp;#x2212;&lt;/mo&gt;&lt;mfrac&gt;&lt;mrow&gt;&lt;mi&gt;A&lt;/mi&gt;&lt;mo&gt;&amp;#x2229;&lt;/mo&gt;&lt;mi&gt;B&lt;/mi&gt;&lt;/mrow&gt;&lt;mrow&gt;&lt;mi&gt;A&lt;/mi&gt;&lt;mo&gt;+&lt;/mo&gt;&lt;mi&gt;B&lt;/mi&gt;&lt;mo&gt;&amp;#x2212;&lt;/mo&gt;&lt;mi&gt;A&lt;/mi&gt;&lt;mo&gt;&amp;#x2229;&lt;/mo&gt;&lt;mi&gt;B&lt;/mi&gt;&lt;/mrow&gt;&lt;/mfrac&gt;&lt;/math&gt;" role="presentation"><span id="MJXc-Node-1" class="mjx-math" aria-hidden="true"><span id="MJXc-Node-2" class="mjx-mrow"><span id="MJXc-Node-3" class="mjx-mi"><span class="mjx-char MJXc-TeX-main-R" style="padding-top: 0.415em; padding-bottom: 0.374em;">J</span></span><span id="MJXc-Node-4" class="mjx-mo"><span class="mjx-char"></span></span><span id="MJXc-Node-5" class="mjx-mo"><span class="mjx-char MJXc-TeX-main-R" style="padding-top: 0.457em; padding-bottom: 0.581em;">(</span></span><span id="MJXc-Node-6" class="mjx-mi"><span class="mjx-char MJXc-TeX-math-I" style="padding-top: 0.498em; padding-bottom: 0.291em;">A</span></span><span id="MJXc-Node-7" class="mjx-mo"><span class="mjx-char MJXc-TeX-main-R" style="margin-top: -0.163em; padding-bottom: 0.539em;">,</span></span><span id="MJXc-Node-8" class="mjx-mi MJXc-space1"><span class="mjx-char MJXc-TeX-math-I" style="padding-top: 0.457em; padding-bottom: 0.291em;">B</span></span><span id="MJXc-Node-9" class="mjx-mo"><span class="mjx-char MJXc-TeX-main-R" style="padding-top: 0.457em; padding-bottom: 0.581em;">)</span></span><span id="MJXc-Node-10" class="mjx-mo MJXc-space3"><span class="mjx-char MJXc-TeX-main-R" style="padding-top: 0.085em; padding-bottom: 0.333em;">=</span></span><span id="MJXc-Node-11" class="mjx-mn MJXc-space3"><span class="mjx-char MJXc-TeX-main-R" style="padding-top: 0.374em; padding-bottom: 0.333em;">1</span></span><span id="MJXc-Node-12" class="mjx-mo MJXc-space2"><span class="mjx-char MJXc-TeX-main-R" style="padding-top: 0.291em; padding-bottom: 0.415em;">−</span></span><span id="MJXc-Node-13" class="mjx-mfrac MJXc-space2"><span class="mjx-box MJXc-stacked" style="width: 6.774em; padding: 0px 0.12em;"><span class="mjx-numerator" style="width: 6.774em; top: -1.418em;"><span id="MJXc-Node-14" class="mjx-mrow"><span id="MJXc-Node-15" class="mjx-mi"><span class="mjx-char MJXc-TeX-math-I" style="padding-top: 0.498em; padding-bottom: 0.291em;">A</span></span><span id="MJXc-Node-16" class="mjx-mo MJXc-space2"><span class="mjx-char MJXc-TeX-main-R" style="padding-top: 0.291em; padding-bottom: 0.374em;">∩</span></span><span id="MJXc-Node-17" class="mjx-mi MJXc-space2"><span class="mjx-char MJXc-TeX-math-I" style="padding-top: 0.457em; padding-bottom: 0.291em;">B</span></span></span></span><span class="mjx-denominator" style="width: 6.774em; bottom: -0.793em;"><span id="MJXc-Node-18" class="mjx-mrow"><span id="MJXc-Node-19" class="mjx-mi"><span class="mjx-char MJXc-TeX-math-I" style="padding-top: 0.498em; padding-bottom: 0.291em;">A</span></span><span id="MJXc-Node-20" class="mjx-mo MJXc-space2"><span class="mjx-char MJXc-TeX-main-R" style="padding-top: 0.291em; padding-bottom: 0.415em;">+</span></span><span id="MJXc-Node-21" class="mjx-mi MJXc-space2"><span class="mjx-char MJXc-TeX-math-I" style="padding-top: 0.457em; padding-bottom: 0.291em;">B</span></span><span id="MJXc-Node-22" class="mjx-mo MJXc-space2"><span class="mjx-char MJXc-TeX-main-R" style="padding-top: 0.291em; padding-bottom: 0.415em;">−</span></span><span id="MJXc-Node-23" class="mjx-mi MJXc-space2"><span class="mjx-char MJXc-TeX-math-I" style="padding-top: 0.498em; padding-bottom: 0.291em;">A</span></span><span id="MJXc-Node-24" class="mjx-mo MJXc-space2"><span class="mjx-char MJXc-TeX-main-R" style="padding-top: 0.291em; padding-bottom: 0.374em;">∩</span></span><span id="MJXc-Node-25" class="mjx-mi MJXc-space2"><span class="mjx-char MJXc-TeX-math-I" style="padding-top: 0.457em; padding-bottom: 0.291em;">B</span></span></span></span><span class="mjx-line" style="border-bottom: 1.5px solid; top: -0.28em; width: 6.774em;"></span></span><span class="mjx-vsize" style="height: 2.21em; vertical-align: -0.793em;"></span></span></span></span><span class="MJX_Assistive_MathML MJX_Assistive_MathML_Block" role="presentation"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mi mathvariant="normal">J</mi><mo>⁡</mo><mo stretchy="false">(</mo><mi>A</mi><mo>,</mo><mi>B</mi><mo stretchy="false">)</mo><mo>=</mo><mn>1</mn><mo>−</mo><mfrac><mrow><mi>A</mi><mo>∩</mo><mi>B</mi></mrow><mrow><mi>A</mi><mo>+</mo><mi>B</mi><mo>−</mo><mi>A</mi><mo>∩</mo><mi>B</mi></mrow></mfrac></math></span></span></span><script type="math/tex; mode=display" id="MathJax-Element-1">\operatorname{J}(A, B) = 1 - \frac{A \cap B}{A + B - A \cap B}</script>
+
+<p>where <span class="MathJax_Preview" style="color: inherit; display: none;"></span><span id="MathJax-Element-2-Frame" class="mjx-chtml MathJax_CHTML" tabindex="0" data-mathml="&lt;math xmlns=&quot;http://www.w3.org/1998/Math/MathML&quot;&gt;&lt;mi&gt;A&lt;/mi&gt;&lt;/math&gt;" role="presentation" style="font-size: 121%; position: relative;"><span id="MJXc-Node-26" class="mjx-math" aria-hidden="true"><span id="MJXc-Node-27" class="mjx-mrow"><span id="MJXc-Node-28" class="mjx-mi"><span class="mjx-char MJXc-TeX-math-I" style="padding-top: 0.498em; padding-bottom: 0.291em;">A</span></span></span></span><span class="MJX_Assistive_MathML" role="presentation"><math xmlns="http://www.w3.org/1998/Math/MathML"><mi>A</mi></math></span></span><script type="math/tex" id="MathJax-Element-2"> A </script> is the set of characters in one string and <span class="MathJax_Preview" style="color: inherit; display: none;"></span><span id="MathJax-Element-3-Frame" class="mjx-chtml MathJax_CHTML" tabindex="0" data-mathml="&lt;math xmlns=&quot;http://www.w3.org/1998/Math/MathML&quot;&gt;&lt;mi&gt;B&lt;/mi&gt;&lt;/math&gt;" role="presentation" style="font-size: 121%; position: relative;"><span id="MJXc-Node-29" class="mjx-math" aria-hidden="true"><span id="MJXc-Node-30" class="mjx-mrow"><span id="MJXc-Node-31" class="mjx-mi"><span class="mjx-char MJXc-TeX-math-I" style="padding-top: 0.457em; padding-bottom: 0.291em;">B</span></span></span></span><span class="MJX_Assistive_MathML" role="presentation"><math xmlns="http://www.w3.org/1998/Math/MathML"><mi>B</mi></math></span></span><script type="math/tex" id="MathJax-Element-3"> B </script> is the set of
+characters in another string. <code class="highlighter-rouge">SCHEMA</code> and <code class="highlighter-rouge">SCEMA</code>, for example, have a Jaccard
+distance of 0.167.</p>
+
+<p>Both approaches have many, many variations, and existing toolkits
+usually provide at least four or five to choose from.</p>
+
+<h3 id="semantic-distance">Semantic Distance</h3>
+
+<p>If the computers already knew the meaning of column names, then the
+problem of matching columns would be trivial to solve. If column names
+are synonyms, there should be little distance between them. If both
+column names are examples of a common class, for example <code class="highlighter-rouge">HOURLY WAGE</code> and
+<code class="highlighter-rouge">ANNUAL SALARY</code>, we would want to score those as similar, although maybe
+not as similar as synonyms.</p>
+
+<p>In most schema matching toolkits, the semantic distance between column
+names is calculated with the aid of dictionaries that list both synonyms
+and the class that the word is an example of. Typically, the semantic
+distance between two columns names is calculated in the following way.</p>
+
+<ol>
+  <li>If the words are exactly the same, then the distance is 0.</li>
+  <li>If the words are synonyms then, the the distance is <span class="MathJax_Preview" style="color: inherit; display: none;"></span><span id="MathJax-Element-4-Frame" class="mjx-chtml MathJax_CHTML" tabindex="0" data-mathml="&lt;math xmlns=&quot;http://www.w3.org/1998/Math/MathML&quot;&gt;&lt;msub&gt;&lt;mi&gt;d&lt;/mi&gt;&lt;mn&gt;1&lt;/mn&gt;&lt;/msub&gt;&lt;/math&gt;" role="presentation" style="font-size: 121%; position: relative;"><span id="MJXc-Node-32" class="mjx-math" aria-hidden="true"><span id="MJXc-Node-33" class="mjx-mrow"><span id="MJXc-Node-34" class="mjx-msubsup"><span class="mjx-base" style="margin-right: -0.003em;"><span id="MJXc-Node-35" class="mjx-mi"><span class="mjx-char MJXc-TeX-math-I" style="padding-top: 0.457em; padding-bottom: 0.291em; padding-right: 0.003em;">d</span></span></span><span class="mjx-sub" style="font-size: 70.7%; vertical-align: -0.212em; padding-right: 0.071em;"><span id="MJXc-Node-36" class="mjx-mn" style=""><span class="mjx-char MJXc-TeX-main-R" style="padding-top: 0.374em; padding-bottom: 0.333em;">1</span></span></span></span></span></span><span class="MJX_Assistive_MathML" role="presentation"><math xmlns="http://www.w3.org/1998/Math/MathML"><msub><mi>d</mi><mn>1</mn></msub></math></span></span><script type="math/tex" id="MathJax-Element-4">d_1 </script>.</li>
+  <li>If the words are examples of the same class then the distance is
+<span class="MathJax_Preview" style="color: inherit; display: none;"></span><span id="MathJax-Element-5-Frame" class="mjx-chtml MathJax_CHTML" tabindex="0" data-mathml="&lt;math xmlns=&quot;http://www.w3.org/1998/Math/MathML&quot;&gt;&lt;msub&gt;&lt;mi&gt;d&lt;/mi&gt;&lt;mn&gt;2&lt;/mn&gt;&lt;/msub&gt;&lt;/math&gt;" role="presentation" style="font-size: 121%; position: relative;"><span id="MJXc-Node-37" class="mjx-math" aria-hidden="true"><span id="MJXc-Node-38" class="mjx-mrow"><span id="MJXc-Node-39" class="mjx-msubsup"><span class="mjx-base" style="margin-right: -0.003em;"><span id="MJXc-Node-40" class="mjx-mi"><span class="mjx-char MJXc-TeX-math-I" style="padding-top: 0.457em; padding-bottom: 0.291em; padding-right: 0.003em;">d</span></span></span><span class="mjx-sub" style="font-size: 70.7%; vertical-align: -0.212em; padding-right: 0.071em;"><span id="MJXc-Node-41" class="mjx-mn" style=""><span class="mjx-char MJXc-TeX-main-R" style="padding-top: 0.374em; padding-bottom: 0.333em;">2</span></span></span></span></span></span><span class="MJX_Assistive_MathML" role="presentation"><math xmlns="http://www.w3.org/1998/Math/MathML"><msub><mi>d</mi><mn>2</mn></msub></math></span></span><script type="math/tex" id="MathJax-Element-5">d_2 </script>.</li>
+  <li>If one word is an example of the second word then the distance is
+<span class="MathJax_Preview" style="color: inherit; display: none;"></span><span id="MathJax-Element-6-Frame" class="mjx-chtml MathJax_CHTML" tabindex="0" data-mathml="&lt;math xmlns=&quot;http://www.w3.org/1998/Math/MathML&quot;&gt;&lt;msub&gt;&lt;mi&gt;d&lt;/mi&gt;&lt;mn&gt;3&lt;/mn&gt;&lt;/msub&gt;&lt;/math&gt;" role="presentation" style="font-size: 121%; position: relative;"><span id="MJXc-Node-42" class="mjx-math" aria-hidden="true"><span id="MJXc-Node-43" class="mjx-mrow"><span id="MJXc-Node-44" class="mjx-msubsup"><span class="mjx-base" style="margin-right: -0.003em;"><span id="MJXc-Node-45" class="mjx-mi"><span class="mjx-char MJXc-TeX-math-I" style="padding-top: 0.457em; padding-bottom: 0.291em; padding-right: 0.003em;">d</span></span></span><span class="mjx-sub" style="font-size: 70.7%; vertical-align: -0.212em; padding-right: 0.071em;"><span id="MJXc-Node-46" class="mjx-mn" style=""><span class="mjx-char MJXc-TeX-main-R" style="padding-top: 0.374em; padding-bottom: 0.374em;">3</span></span></span></span></span></span><span class="MJX_Assistive_MathML" role="presentation"><math xmlns="http://www.w3.org/1998/Math/MathML"><msub><mi>d</mi><mn>3</mn></msub></math></span></span><script type="math/tex" id="MathJax-Element-6">d_3 </script>. For example, <code class="highlighter-rouge">HOURLY WAGE</code> and <code class="highlighter-rouge">COMPENSATION</code>.</li>
+</ol>
+
+<p>The setting of the distances <span class="MathJax_Preview" style="color: inherit; display: none;"></span><span id="MathJax-Element-7-Frame" class="mjx-chtml MathJax_CHTML" tabindex="0" data-mathml="&lt;math xmlns=&quot;http://www.w3.org/1998/Math/MathML&quot;&gt;&lt;msub&gt;&lt;mi&gt;d&lt;/mi&gt;&lt;mn&gt;1&lt;/mn&gt;&lt;/msub&gt;&lt;/math&gt;" role="presentation" style="font-size: 121%; position: relative;"><span id="MJXc-Node-47" class="mjx-math" aria-hidden="true"><span id="MJXc-Node-48" class="mjx-mrow"><span id="MJXc-Node-49" class="mjx-msubsup"><span class="mjx-base" style="margin-right: -0.003em;"><span id="MJXc-Node-50" class="mjx-mi"><span class="mjx-char MJXc-TeX-math-I" style="padding-top: 0.457em; padding-bottom: 0.291em; padding-right: 0.003em;">d</span></span></span><span class="mjx-sub" style="font-size: 70.7%; vertical-align: -0.212em; padding-right: 0.071em;"><span id="MJXc-Node-51" class="mjx-mn" style=""><span class="mjx-char MJXc-TeX-main-R" style="padding-top: 0.374em; padding-bottom: 0.333em;">1</span></span></span></span></span></span><span class="MJX_Assistive_MathML" role="presentation"><math xmlns="http://www.w3.org/1998/Math/MathML"><msub><mi>d</mi><mn>1</mn></msub></math></span></span><script type="math/tex" id="MathJax-Element-7">d_1 </script>, <span class="MathJax_Preview" style="color: inherit; display: none;"></span><span id="MathJax-Element-8-Frame" class="mjx-chtml MathJax_CHTML" tabindex="0" data-mathml="&lt;math xmlns=&quot;http://www.w3.org/1998/Math/MathML&quot;&gt;&lt;msub&gt;&lt;mi&gt;d&lt;/mi&gt;&lt;mn&gt;2&lt;/mn&gt;&lt;/msub&gt;&lt;/math&gt;" role="presentation" style="font-size: 121%; position: relative;"><span id="MJXc-Node-52" class="mjx-math" aria-hidden="true"><span id="MJXc-Node-53" class="mjx-mrow"><span id="MJXc-Node-54" class="mjx-msubsup"><span class="mjx-base" style="margin-right: -0.003em;"><span id="MJXc-Node-55" class="mjx-mi"><span class="mjx-char MJXc-TeX-math-I" style="padding-top: 0.457em; padding-bottom: 0.291em; padding-right: 0.003em;">d</span></span></span><span class="mjx-sub" style="font-size: 70.7%; vertical-align: -0.212em; padding-right: 0.071em;"><span id="MJXc-Node-56" class="mjx-mn" style=""><span class="mjx-char MJXc-TeX-main-R" style="padding-top: 0.374em; padding-bottom: 0.333em;">2</span></span></span></span></span></span><span class="MJX_Assistive_MathML" role="presentation"><math xmlns="http://www.w3.org/1998/Math/MathML"><msub><mi>d</mi><mn>2</mn></msub></math></span></span><script type="math/tex" id="MathJax-Element-8">d_2 </script>, and <span class="MathJax_Preview" style="color: inherit; display: none;"></span><span id="MathJax-Element-9-Frame" class="mjx-chtml MathJax_CHTML" tabindex="0" data-mathml="&lt;math xmlns=&quot;http://www.w3.org/1998/Math/MathML&quot;&gt;&lt;msub&gt;&lt;mi&gt;d&lt;/mi&gt;&lt;mn&gt;3&lt;/mn&gt;&lt;/msub&gt;&lt;/math&gt;" role="presentation" style="font-size: 121%; position: relative;"><span id="MJXc-Node-57" class="mjx-math" aria-hidden="true"><span id="MJXc-Node-58" class="mjx-mrow"><span id="MJXc-Node-59" class="mjx-msubsup"><span class="mjx-base" style="margin-right: -0.003em;"><span id="MJXc-Node-60" class="mjx-mi"><span class="mjx-char MJXc-TeX-math-I" style="padding-top: 0.457em; padding-bottom: 0.291em; padding-right: 0.003em;">d</span></span></span><span class="mjx-sub" style="font-size: 70.7%; vertical-align: -0.212em; padding-right: 0.071em;"><span id="MJXc-Node-61" class="mjx-mn" style=""><span class="mjx-char MJXc-TeX-main-R" style="padding-top: 0.374em; padding-bottom: 0.374em;">3</span></span></span></span></span></span><span class="MJX_Assistive_MathML" role="presentation"><math xmlns="http://www.w3.org/1998/Math/MathML"><msub><mi>d</mi><mn>3</mn></msub></math></span></span><script type="math/tex" id="MathJax-Element-9">d_3 </script> is typically
+arbitrary, with <span class="MathJax_Preview" style="color: inherit; display: none;"></span><span id="MathJax-Element-10-Frame" class="mjx-chtml MathJax_CHTML" tabindex="0" data-mathml="&lt;math xmlns=&quot;http://www.w3.org/1998/Math/MathML&quot;&gt;&lt;msub&gt;&lt;mi&gt;d&lt;/mi&gt;&lt;mn&gt;3&lt;/mn&gt;&lt;/msub&gt;&lt;/math&gt;" role="presentation" style="font-size: 121%; position: relative;"><span id="MJXc-Node-62" class="mjx-math" aria-hidden="true"><span id="MJXc-Node-63" class="mjx-mrow"><span id="MJXc-Node-64" class="mjx-msubsup"><span class="mjx-base" style="margin-right: -0.003em;"><span id="MJXc-Node-65" class="mjx-mi"><span class="mjx-char MJXc-TeX-math-I" style="padding-top: 0.457em; padding-bottom: 0.291em; padding-right: 0.003em;">d</span></span></span><span class="mjx-sub" style="font-size: 70.7%; vertical-align: -0.212em; padding-right: 0.071em;"><span id="MJXc-Node-66" class="mjx-mn" style=""><span class="mjx-char MJXc-TeX-main-R" style="padding-top: 0.374em; padding-bottom: 0.374em;">3</span></span></span></span></span></span><span class="MJX_Assistive_MathML" role="presentation"><math xmlns="http://www.w3.org/1998/Math/MathML"><msub><mi>d</mi><mn>3</mn></msub></math></span></span><script type="math/tex" id="MathJax-Element-10">d_3 </script> greater than <span class="MathJax_Preview" style="color: inherit; display: none;"></span><span id="MathJax-Element-11-Frame" class="mjx-chtml MathJax_CHTML" tabindex="0" data-mathml="&lt;math xmlns=&quot;http://www.w3.org/1998/Math/MathML&quot;&gt;&lt;msub&gt;&lt;mi&gt;d&lt;/mi&gt;&lt;mn&gt;2&lt;/mn&gt;&lt;/msub&gt;&lt;/math&gt;" role="presentation" style="font-size: 121%; position: relative;"><span id="MJXc-Node-67" class="mjx-math" aria-hidden="true"><span id="MJXc-Node-68" class="mjx-mrow"><span id="MJXc-Node-69" class="mjx-msubsup"><span class="mjx-base" style="margin-right: -0.003em;"><span id="MJXc-Node-70" class="mjx-mi"><span class="mjx-char MJXc-TeX-math-I" style="padding-top: 0.457em; padding-bottom: 0.291em; padding-right: 0.003em;">d</span></span></span><span class="mjx-sub" style="font-size: 70.7%; vertical-align: -0.212em; padding-right: 0.071em;"><span id="MJXc-Node-71" class="mjx-mn" style=""><span class="mjx-char MJXc-TeX-main-R" style="padding-top: 0.374em; padding-bottom: 0.333em;">2</span></span></span></span></span></span><span class="MJX_Assistive_MathML" role="presentation"><math xmlns="http://www.w3.org/1998/Math/MathML"><msub><mi>d</mi><mn>2</mn></msub></math></span></span><script type="math/tex" id="MathJax-Element-11">d_2 </script> and <span class="MathJax_Preview" style="color: inherit; display: none;"></span><span id="MathJax-Element-12-Frame" class="mjx-chtml MathJax_CHTML" tabindex="0" data-mathml="&lt;math xmlns=&quot;http://www.w3.org/1998/Math/MathML&quot;&gt;&lt;msub&gt;&lt;mi&gt;d&lt;/mi&gt;&lt;mn&gt;2&lt;/mn&gt;&lt;/msub&gt;&lt;/math&gt;" role="presentation" style="font-size: 121%; position: relative;"><span id="MJXc-Node-72" class="mjx-math" aria-hidden="true"><span id="MJXc-Node-73" class="mjx-mrow"><span id="MJXc-Node-74" class="mjx-msubsup"><span class="mjx-base" style="margin-right: -0.003em;"><span id="MJXc-Node-75" class="mjx-mi"><span class="mjx-char MJXc-TeX-math-I" style="padding-top: 0.457em; padding-bottom: 0.291em; padding-right: 0.003em;">d</span></span></span><span class="mjx-sub" style="font-size: 70.7%; vertical-align: -0.212em; padding-right: 0.071em;"><span id="MJXc-Node-76" class="mjx-mn" style=""><span class="mjx-char MJXc-TeX-main-R" style="padding-top: 0.374em; padding-bottom: 0.333em;">2</span></span></span></span></span></span><span class="MJX_Assistive_MathML" role="presentation"><math xmlns="http://www.w3.org/1998/Math/MathML"><msub><mi>d</mi><mn>2</mn></msub></math></span></span><script type="math/tex" id="MathJax-Element-12">d_2 </script> greater than <span class="MathJax_Preview" style="color: inherit; display: none;"></span><span id="MathJax-Element-13-Frame" class="mjx-chtml MathJax_CHTML" tabindex="0" data-mathml="&lt;math xmlns=&quot;http://www.w3.org/1998/Math/MathML&quot;&gt;&lt;msub&gt;&lt;mi&gt;d&lt;/mi&gt;&lt;mn&gt;1&lt;/mn&gt;&lt;/msub&gt;&lt;/math&gt;" role="presentation" style="font-size: 121%; position: relative;"><span id="MJXc-Node-77" class="mjx-math" aria-hidden="true"><span id="MJXc-Node-78" class="mjx-mrow"><span id="MJXc-Node-79" class="mjx-msubsup"><span class="mjx-base" style="margin-right: -0.003em;"><span id="MJXc-Node-80" class="mjx-mi"><span class="mjx-char MJXc-TeX-math-I" style="padding-top: 0.457em; padding-bottom: 0.291em; padding-right: 0.003em;">d</span></span></span><span class="mjx-sub" style="font-size: 70.7%; vertical-align: -0.212em; padding-right: 0.071em;"><span id="MJXc-Node-81" class="mjx-mn" style=""><span class="mjx-char MJXc-TeX-main-R" style="padding-top: 0.374em; padding-bottom: 0.333em;">1</span></span></span></span></span></span><span class="MJX_Assistive_MathML" role="presentation"><math xmlns="http://www.w3.org/1998/Math/MathML"><msub><mi>d</mi><mn>1</mn></msub></math></span></span><script type="math/tex" id="MathJax-Element-13">d_1 </script>.</p>
+
+<p>The main drawback to the dictionary based approach is that it requires a
+domain specific taxonomic dictionary, which is usually laborious to
+construct. Available, general purpose taxonomic dictionaries, like
+WordNet<sup id="fnref:wordnet"><a href="https://datamade.us/blog/schema-matching/#fn:wordnet" class="footnote">2</a></sup>, do not usually help much in schema matching.</p>
+
+<p>A naive implementation of the dictionary approach will also not be
+robust to misspellings or column name abbreviations. This can be
+addressed with algorithms for approximate string matching used in
+spelling correction algorithms.</p>
+
+<p>Recent developments in natural language processing suggest a promising
+alternative for calculating semantic distances. The word2vec model
+has shown itself to be surprisingly good model for measuring the
+“semantic” distance between words, and could likely be usefully applied
+for schema matching. This technique requires a large corpus of tables,
+but does not require a handmade taxonomic dictionary.<sup id="fnref:gensim"><a href="https://datamade.us/blog/schema-matching/#fn:gensim" class="footnote">3</a></sup></p>
+
+<h3 id="data-types">Data Types</h3>
+
+<p>If we have access to the database system, we can extract metadata on the
+types of data that can occur in the columns of a table. For example, we
+can see whether a column contains integers, floating point numbers,
+text, dates, or timestamps. When we compare table columns, we can
+compare data types and score columns with the same data types as
+similar.</p>
+
+<p>Unfortunately, data often does not have the most specific data type
+possible in a database. Timestamps can be represented in an integer
+field, integers can be represented in floating point number fields, and
+everything can be represented as text. The distance between timestamp
+columns should be closer than between text columns. A robust system will
+attempt to infer the most specific data type possible for a column.</p>
+
+<h3 id="inferring-semantic-meaning">Inferring Semantic Meaning</h3>
+
+<p>It is often possible to infer the type of information contained in the
+column by examining the data in the column. One method, described in
+Zapilko et. al.<sup id="fnref:regex"><a href="https://datamade.us/blog/schema-matching/#fn:regex" class="footnote">4</a></sup>, is to develop a library of common formats (e.g. different ways
+to write dates/times, email addresses, zip codes, etc.) described by
+regular expressions. If columns match the same formats, then we can score
+them as similar.</p>
+
+<p>This idea could be made more robust by using machine learning techniques
+for text classification, instead of hand coded, brittle rules.</p>
+
+<h2 id="distributional-distance">Distributional Distance</h2>
+
+<p>If two columns contain the same type of information about the same type
+of entities, they will often have similar distributions of data. For
+example, the distribution of birth dates of unemployment recipients will
+be more similar to the distribution of birth dates of high school
+freshman than the distribution of application dates for business
+licenses, because there will be very few weekends in the application
+dates.</p>
+
+<p>We can often usefully compare distributions by comparing summary
+statistics. If we have continuous data, these will likely include:</p>
+
+<ul>
+  <li>Range of values</li>
+  <li>Average or median</li>
+  <li>Standard deviation or interquartile range</li>
+  <li>Number of missing values</li>
+</ul>
+
+<p>If we have categorical data then we can compare:</p>
+
+<ul>
+  <li>All possible values</li>
+  <li>Proportion of categorical values</li>
+</ul>
+
+<p>Alternately, we can compare the distributions directly using
+distribution distance measures like the Kullback-Leibler divergence, the
+earthmover’s distance, or the Chi Squared distance. This can either be
+done with the full data, or more practically, with a representative sample.</p>
+
+<p>In order to fully benefit from comparing distributions, some care will
+be necessary to handle differences in units and coding. If the data is
+continuous, then float and integer data may need to be standardized. If the
+data is categorical, then the proportions of the categories should be
+compared but the labels of the categories should likely be ignored.</p>
+
+<h2 id="combining-distances">Combining Distances</h2>
+
+<p>Using these distance measures, we can generate an array of distances for
+every column pair. In order to find the best matches, we need to combine
+these multiple measures into a single score.</p>
+
+<p>At the end of the column comparison phase, we can compare every pair
+of columns using a number of distance measures.</p>
+
+<p>Say we are comparing two tables. The first has the columns <code class="highlighter-rouge">automobile</code>,
+<code class="highlighter-rouge">color</code>, <code class="highlighter-rouge">years</code>, and <code class="highlighter-rouge">owner</code>. The second table has the columns <code class="highlighter-rouge">car</code>,
+<code class="highlighter-rouge">color</code>, <code class="highlighter-rouge">age</code>, and <code class="highlighter-rouge">owned by</code>. We have compared all pair combinations
+using an edit distance and a dictionary-based semantic distance:</p>
+
+<table class="table">
+  <thead>
+    <tr>
+      <th>&nbsp;</th>
+      <th>edit distance</th>
+      <th>semantic distance</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>automobile-car</td>
+      <td>10</td>
+      <td>0.1</td>
+    </tr>
+    <tr>
+      <td>automobile-color</td>
+      <td>8</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>automobile-age</td>
+      <td>8</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>automobile-owned by</td>
+      <td>9</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>color-car</td>
+      <td>3</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>color-color</td>
+      <td>0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <td>color-age</td>
+      <td>5</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>color-owned by</td>
+      <td>8</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>years-car</td>
+      <td>3</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>years-color</td>
+      <td>5</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>years-age</td>
+      <td>4</td>
+      <td>0.6</td>
+    </tr>
+    <tr>
+      <td>years-owned by</td>
+      <td>7</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>owner-car</td>
+      <td>4</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>owner-color</td>
+      <td>4</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>owner-age</td>
+      <td>4</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>owner-owned by</td>
+      <td>4</td>
+      <td>0.5</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>For each column pair, we now need to aggregate these distances to get a
+final score. Existing toolkits allow the user to choose how they want to
+aggregate. For example, COMA lets the user decide whether they want the
+maximum score, the minimum score, the average, or median score. All of
+these approaches discard a lot of information and also require that each
+distance measure be normalized to have the same scale, typically between
+0 and 1.</p>
+
+<p>Different distance measures provide different amounts of information
+about whether a pair of columns contain the same type of information.
+Ideally, we would weight the contribution of different distance
+measures based upon how much information it contributes to the problem
+of column matching. While it’s possible to choose weights manually, it
+is a difficult task to do well especially as the number of distance
+measures increases. Many existing toolkits do allow for the user to set
+weights.</p>
+
+<p>It would be a much more efficient use of information, and also simpler,
+to use the distance measures as features in a statistical model that
+predicted whether a pair of columns were about the same thing or not.
+Here, the algorithm sets the weights automatically, based upon training
+data. Some existing schema matching systems use this machine learning
+approach, like LSD<sup id="fnref:machine"><a href="https://datamade.us/blog/schema-matching/#fn:machine" class="footnote">5</a></sup>, but it is rare.</p>
+
+<p>In addition to automatically learning weights, a machine learning
+approach can make the construction of distance functions much simpler.
+If the distance scores were simply features, then we could remove many
+of the arbitrary decisions that we must make within the existing
+approach. For example, instead of choosing how to score the distance
+between a timezone data type and a integer data type, we could just have
+a set of indicator variables that indicate what combination of data
+types a pair of columns have. Using logistic regression, or a similar
+technique, we would then learn what combinations suggested a good match
+or a bad match.</p>
+
+<p>In order to use machine learning, we must have training data, in the
+form of pairs of columns that have been labeled as either matching or
+not. These labels can be solicited from users through Active Learning.
+In Active Learning, the predictive model is initialized, and the system
+identifies column pairs where there is the greatest uncertainty of
+whether the pair is a match or not. This pair is presented to the user
+for labeling. This new labeled example is used to update the predictive
+model and the system now finds a new pair that it is most uncertain
+about. In our experience, a very good model can be learned with 50 user
+solicited labels.</p>
+
+<h2 id="final-scores">Final Scores</h2>
+
+<p>At the end of this stage, we should have a final score for every column.
+If we were using a machine learning approach, and the same tables as we
+used in the example above, it might look like this:</p>
+
+<table class="table">
+  <thead>
+    <tr>
+      <th>&nbsp;</th>
+      <th>edit distance</th>
+      <th>semantic distance</th>
+      <th>probability of a match</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>automobile-car</td>
+      <td>10</td>
+      <td>0.1</td>
+      <td>0.8</td>
+    </tr>
+    <tr>
+      <td>automobile-color</td>
+      <td>8</td>
+      <td>1</td>
+      <td>0.1</td>
+    </tr>
+    <tr>
+      <td>automobile-age</td>
+      <td>8</td>
+      <td>1</td>
+      <td>0.1</td>
+    </tr>
+    <tr>
+      <td>automobile-owned by</td>
+      <td>9</td>
+      <td>1</td>
+      <td>0.1</td>
+    </tr>
+    <tr>
+      <td>color-car</td>
+      <td>3</td>
+      <td>1</td>
+      <td>0.3</td>
+    </tr>
+    <tr>
+      <td>color-color</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <td>color-age</td>
+      <td>5</td>
+      <td>1</td>
+      <td>0.2</td>
+    </tr>
+    <tr>
+      <td>color-owned by</td>
+      <td>8</td>
+      <td>1</td>
+      <td>0.1</td>
+    </tr>
+    <tr>
+      <td>years-car</td>
+      <td>3</td>
+      <td>1</td>
+      <td>0.3</td>
+    </tr>
+    <tr>
+      <td>years-color</td>
+      <td>5</td>
+      <td>1</td>
+      <td>0.2</td>
+    </tr>
+    <tr>
+      <td>years-age</td>
+      <td>4</td>
+      <td>0.6</td>
+      <td>0.7</td>
+    </tr>
+    <tr>
+      <td>years-owned by</td>
+      <td>7</td>
+      <td>1</td>
+      <td>0.1</td>
+    </tr>
+    <tr>
+      <td>owner-car</td>
+      <td>4</td>
+      <td>1</td>
+      <td>0.2</td>
+    </tr>
+    <tr>
+      <td>owner-color</td>
+      <td>4</td>
+      <td>1</td>
+      <td>0.2</td>
+    </tr>
+    <tr>
+      <td>owner-age</td>
+      <td>4</td>
+      <td>1</td>
+      <td>0.3</td>
+    </tr>
+    <tr>
+      <td>owner-owned by</td>
+      <td>4</td>
+      <td>0.5</td>
+      <td>0.6</td>
+    </tr>
+  </tbody>
+</table>
+
+<h1 id="aligning-columns">Aligning Columns</h1>
+
+<p>Once we have the final column-pair scores, we can decide which
+columns actually contain comparable information. There are a number of
+ways to do this, and which one is best will depend on what assumptions
+you can make about the tables.</p>
+
+<h2 id="simple-threshold">Simple Threshold</h2>
+
+<p>The most conservative approach is to consider all column pairs that have
+a score higher than some threshold. So if we set a threshold of 0.3 we
+would consider these possible column matches:</p>
+
+<table class="table">
+  <thead>
+    <tr>
+      <th>&nbsp;</th>
+      <th>edit distance</th>
+      <th>semantic distance</th>
+      <th>probability of a match</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>automobile-car</td>
+      <td>10</td>
+      <td>0.1</td>
+      <td>0.8</td>
+    </tr>
+    <tr>
+      <td>color-car</td>
+      <td>3</td>
+      <td>1</td>
+      <td>0.3</td>
+    </tr>
+    <tr>
+      <td>color-color</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <td>years-car</td>
+      <td>3</td>
+      <td>1</td>
+      <td>0.3</td>
+    </tr>
+    <tr>
+      <td>years-age</td>
+      <td>4</td>
+      <td>0.6</td>
+      <td>0.7</td>
+    </tr>
+    <tr>
+      <td>owner-age</td>
+      <td>4</td>
+      <td>1</td>
+      <td>0.3</td>
+    </tr>
+    <tr>
+      <td>owner-owned by</td>
+      <td>4</td>
+      <td>0.5</td>
+      <td>0.6</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>This is equivalent to assuming that a table can have columns with somewhat
+redundant data. In this case, we would need to consider the possibility
+that the <code class="highlighter-rouge">automobile</code>, <code class="highlighter-rouge">color</code>, and <code class="highlighter-rouge">years</code> columns from the first table
+have redundant data. This commonly happens with names and addresses,
+where the parts of an name or address are split across multiple column,
+i.e. <code class="highlighter-rouge">address_1</code>, <code class="highlighter-rouge">address_2</code>, <code class="highlighter-rouge">zipcode</code>.</p>
+
+<h2 id="assuming-non-redundancy">Assuming Non-redundancy</h2>
+
+<p>If we assume that tables do not contain redundant columns, then if we
+select one column pair, we will not consider any other pairs that have
+either of those two columns.</p>
+
+<p>There are few ways to do this, but in practice, a greedy approach works
+well. First, choose the highest scoring column pair, then discard all
+remaining pairs that have a column in common with the chosen pair, then
+choose the highest scoring column pair. Repeat until the set of column
+pairs is empty.</p>
+
+<table class="table">
+  <thead>
+    <tr>
+      <th>&nbsp;</th>
+      <th>edit distance</th>
+      <th>semantic distance</th>
+      <th>probability of a match</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>automobile-car</td>
+      <td>10</td>
+      <td>0.1</td>
+      <td>0.8</td>
+    </tr>
+    <tr>
+      <td>color-color</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <td>years-age</td>
+      <td>4</td>
+      <td>0.6</td>
+      <td>0.7</td>
+    </tr>
+    <tr>
+      <td>owner-owned by</td>
+      <td>4</td>
+      <td>0.5</td>
+      <td>0.6</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>This approach also assumes that the columns in one table are a subset of
+the columns in the other. In other words, every column in the narrower
+table has a matching column in the larger table.</p>
+
+<p>We can relax that assumption by using the greedy approach, while only
+considering column pairs that have scores above some threshold.</p>
+
+<h1 id="table-matching">Table Matching</h1>
+
+<p>While we do want to know what columns we can compare, this usually comes
+after identifying what tables are likely to contain data about the same
+type of entities.</p>
+
+<p>Once we compare all the columns in the table, we can combine the column
+pair distances into table-level distances.</p>
+
+<p>In existing systems, the typical way of doing this is to first align the
+columns, using one of the approaches described in the previous section.
+Then take the average score of those columns. This approach depends on
+the column alignment strategy, the width of the columns, and the
+threshold.</p>
+
+<p>Using the simple threshold strategy for column alignment, the average
+score between our example tables is 0.57 if the column alignment score
+threshold is 0.3, but the table comparison score jumps to 0.78 if
+the column alignment score threshold is raised to 0.5.</p>
+
+<p>A good measure of table similarity should only depend upon column
+similarity, not column alignment. There are a few approaches here that
+could be useful. In particular, we should investigate comparing the
+observed distribution of scores in a final column match table with the
+distribution that would be expected if we compared a random sample of
+columns. This should give us a measure that should not depend on column
+alignment or table widths.</p>
+
+<h1 id="computational-complexity">Computational Complexity</h1>
+
+<p>The approaches in the existing toolkits cannot scale to large
+collections of data. Everything builds on comparing columns, and the
+number of comparisons is the Cartesian product of the width of columns
+in each dataset.</p>
+
+<p>Let’s say that all datasets in a collection have at least 5 columns.
+For each pair of datasets there are 25 ways to combine the 5 columns
+from each dataset. If there are 20 datasets, then there are 190
+combinations of datasets. So for each distance measure, we will need to
+make at least 4,750 comparisons. If there are 100 datasets, we will
+need to make at least 123,750 comparisons. If there are 1000
+datasets, we will need to make at least 12,487,500 comparisons.</p>
+
+<p>In order to reach scale, we will need to find a way to cut down on the
+number of comparisons we have to make. The most promising way to do this
+is with blocking. In blocking, we find a feature that is likely to be shared
+among comparable columns, and then we only compare
+columns that share that feature. For example, we could only compare
+columns that had the same data type. Choosing good blocking rules
+involves a trade off between using enough blocking rules that you
+compare all the columns that should be compared while comparing the
+fewest combination of columns overall. The machine learning approach to
+blocking used in record linkage can be applied here.<sup id="fnref:bilenko"><a href="https://datamade.us/blog/schema-matching/#fn:bilenko" class="footnote">6</a></sup></p>
+
+<h1 id="further-resources">Further resources</h1>
+
+<p>A much more comprehensive further resource is
+<a href="http://ontologymatching.org/">ontologymatching.org</a>, the home page of an
+organization that hosts academic conferences on the topic. There, one
+can find much more comprehensive (though often extremely long) surveys,
+other recent publications, and information on conferences. A subsidiary,
+the Ontology Alignment Evaluation Initiative, provides evaluations of
+many existing matchers, which may also be of interest.</p>
+
+<p>Finally, listed below are a collection of open-source schema matchers
+whose licensing, documentation, and source code is all easily accessible
+online. A brief summary of their basic features is given in the table,
+though of course each also has many other varying focuses and strengths.</p>
+
+<table class="table">
+  <thead>
+    <tr>
+      <th>&nbsp;</th>
+      <th>COMA 3.0</th>
+      <th>OntoBuilder</th>
+      <th>AgreementMaker</th>
+      <th>LogMap</th>
+      <th>S-Match</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Custom matchers</td>
+      <td>Yes</td>
+      <td>Yes</td>
+      <td>No</td>
+      <td>No</td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td>Instance data</td>
+      <td>Yes</td>
+      <td>Yes</td>
+      <td>No</td>
+      <td>No</td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td>Machine learning features</td>
+      <td>No</td>
+      <td>No</td>
+      <td>No</td>
+      <td>Yes</td>
+      <td>No</td>
+    </tr>
+    <tr>
+      <td>Semantic learning features</td>
+      <td>Yes</td>
+      <td>No</td>
+      <td>Yes</td>
+      <td>Yes</td>
+      <td>Yes</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>These matchers can be found at the following URLs:</p>
+
+<ul>
+  <li>COMA: <a href="http://dbs.uni-leipzig.de/de/Research/coma.html">http://dbs.uni-leipzig.de/de/Research/coma.html</a></li>
+  <li>OntoBuilder: <a href="https://bitbucket.org/tomers77/ontobuilder/wiki/OntoM">https://bitbucket.org/tomers77/ontobuilder/wiki/OntoM</a></li>
+  <li>AgreementMaker: <a href="https://agreementmaker.github.io/">https://agreementmaker.github.io/</a></li>
+  <li>LogMap: <a href="https://www.cs.ox.ac.uk/isg/tools/LogMap/">https://www.cs.ox.ac.uk/isg/tools/LogMap/</a></li>
+  <li>S-Match: <a href="http://semanticmatching.org/s-match.html">http://semanticmatching.org/s-match.html</a></li>
+</ul>
+
+<p>All matchers listed are cross-platform, written in Java, with both
+command-line and graphical interfaces. They all accept inputs via the
+standard XML-based OWL format, specified by W3C, though some support other formats.</p>
+
+<h2 id="references">References</h2>
+
+<p>Arnold, Patrick and Rahm, Erhard. “Enriching Ontology
+Mappings with Semantic Relations.” University of Leipzig.
+<a href="http://dbs.uni-leipzig.de/file/document_0.pdf">http://dbs.uni-leipzig.de/file/document_0.pdf</a></p>
+
+<p>Aumuller, David et. al. “Schema and Ontology Matching with COMA++.”
+<em>SIGMOD 2005</em> (June 2005).
+<a href="http://dbs.uni-leipzig.de/file/comaplusplus.pdf">http://dbs.uni-leipzig.de/file/comaplusplus.pdf</a></p>
+
+<p>Do, Hong-Hai and Rahm, Erhard. “COMA - A system for flexible combination
+of schema matching approaches.” <em>Proceedings of the 28th VLDB
+Conference</em>, Hong Kong (2002).
+<a href="https://dbs.uni-leipzig.de/file/COMA.pdf">dbs.uni-leipzig.de/file/COMA.pdf</a></p>
+
+<p>Doan, AnHai et. al. “Reconciling Schemas of Disparate Data Sources: A
+Machine-Learning Approach.” <em>ACM SIGMOD</em>, Santa Barbara (2001).
+<a href="http://homes.cs.washington.edu/~pedrod/papers/sigmod01.pdf">http://homes.cs.washington.edu/~pedrod/papers/sigmod01.pdf</a></p>
+
+<p>Engmann, Daniel and Massmann, Sabine. “Instance Matching with COMA++.”
+University of Leipzig.
+<a href="http://dbs.uni-leipzig.de/file/BTW-Workshop/_2007/_EngmannMassmann.pdf">http://dbs.uni-leipzig.de/file/BTW-Workshop\_2007\_EngmannMassmann.pdf</a></p>
+
+<p>Gal, Avigdor and Modica, Giovanni. “Onto-Builder: Fully Automatic
+Extraction and Consolidation of Ontologies from Web Sources.”
+<a href="http://ceur-ws.org/Vol-82/SI_demo_04.pdf">http://ceur-ws.org/Vol-82/SI_demo_04.pdf</a></p>
+
+<p>Raunich, Salvatore and Rahm, Erhard. “Towards a Benchmark for Ontology
+Merging.” University of Leipzig.
+<a href="http://dbs.uni-leipzig.de/file/E2IN2012-raunich-rahm.pdf">http://dbs.uni-leipzig.de/file/E2IN2012-raunich-rahm.pdf</a></p>
+
+<p>Zapilko, Benjamin et. al. “Utilizing Regular Expressions for
+Instance-Based Schema Matching.” Leibniz Institute for the Social
+Sciences. <a href="http://ceur-ws.org/Vol-946/om2012_poster4.pdf">http://ceur-ws.org/Vol-946/om2012_poster4.pdf</a></p>
+
+<p>Princeton University “About WordNet.” WordNet. Princeton University.
+<a href="http://wordnet.princeton.edu/">http://wordnet.princeton.edu</a></p>
+
+<p>Řehůřek, Radim and Petr Sojka. “Software
+Framework for Topic Modelling with Large Corpora.” <em>Proceedings of the
+LREC 2010 Workshop on New Challenges for NLP Frameworks</em>. ELRA.
+<a href="http://is.muni.cz/publication/884893/en">http://is.muni.cz/publication/884893/en</a></p>
+
+<p>Bilenko, Mikhail. <em>Learnable Similarity Functions and their Application
+to Record Linkage and Clustering</em>. University of Texas.
+<a href="http://www.cs.utexas.edu/~ml/papers/marlin-dissertation-06.pdf">http://www.cs.utexas.edu/%7Eml/papers/marlin-dissertation-06.pdf</a></p>
+
+<hr>
+
+<h3 id="footnotes">Footnotes</h3>
+
+<script type="text/javascript" async="" src="./Modern Approaches to Schema Matching - DataMade_files/MathJax.js.Download">
+</script>
+
+<div class="footnotes">
+  <ol>
+    <li id="fn:coma">
+      <p>Hong-Hai Do and Erhard Rahm, <a href="https://dbs.uni-leipzig.de/file/COMA.pdf">“COMA - A system for flexible combination of schema matching approaches”</a> (Hong Kong: <em>Proceedings of the 28th VLDB Conference</em>, 2002) <a href="https://datamade.us/blog/schema-matching/#fnref:coma" class="reversefootnote">↩</a></p>
+    </li>
+    <li id="fn:wordnet">
+      <p>Princeton University, <a href="http://wordnet.princeton.edu/">“About WordNet”</a>. <a href="https://datamade.us/blog/schema-matching/#fnref:wordnet" class="reversefootnote">↩</a></p>
+    </li>
+    <li id="fn:gensim">
+      <p>Radim Řehůřek and Petr Sojka, <a href="http://is.muni.cz/publication/884893/en">“Software Framework for Topic Modelling with Large Corpora”</a> (Malta: <em>Proceedings of the LREC 2010 Workshop on New Challenges for NLP Frameworks</em>, 2010). <a href="https://datamade.us/blog/schema-matching/#fnref:gensim" class="reversefootnote">↩</a></p>
+    </li>
+    <li id="fn:regex">
+      <p>Benjamin Zapilko et. al., <a href="http://ceur-ws.org/Vol-946/om2012_poster4.pdf">“Utilizing Regular Expressions for Instance-Based Schema Matching”</a> (Cologne: GESIS - Leibniz Institute for the Social Sciences, 2012). <a href="https://datamade.us/blog/schema-matching/#fnref:regex" class="reversefootnote">↩</a></p>
+    </li>
+    <li id="fn:machine">
+      <p>AnHai Doan et. al., <a href="http://homes.cs.washington.edu/~pedrod/papers/sigmod01.pdf">“Reconciling Schemas of Disparate Data Sources: A Machine-Learning Approach”</a> (Santa Barbara: <em>ACM SIGMOD</em>, 2001). <a href="https://datamade.us/blog/schema-matching/#fnref:machine" class="reversefootnote">↩</a></p>
+    </li>
+    <li id="fn:bilenko">
+      <p>Mikhail Bilenko, <a href="http://www.cs.utexas.edu/~ml/papers/marlin-dissertation-06.pdf"><em>Learnable Similarity Functions and their Application to Record Linkage and Clustering</em></a> (Austin: University of Texas at Austin, 2004). <a href="https://datamade.us/blog/schema-matching/#fnref:bilenko" class="reversefootnote">↩</a></p>
+    </li>
+  </ol>
+</div>
+
+  </div>
+
+</div>
+
+        </div>
+      </div>
+    </div>
+    <footer class="footer">
+      <div class="container-fluid">
+        <div class="row">
+          <div class="col-sm-2 col-sm-offset-3">
+            <small>
+              <strong><a href="https://datamade.us/our-work/index.html">Our work</a></strong><br>
+              <a href="https://datamade.us/services/index.html">Services</a><br>
+              <a href="https://datamade.us/open-source/index.html">Open source</a>
+            </small>
+          </div>
+          <div class="col-sm-2">
+            <small>
+              <strong><a href="https://datamade.us/products/index.html">Products</a></strong><br>
+              <a href="http://dedupe.io/" target="_blank">Dedupe</a><br>
+              <a href="https://www.councilmatic.org/" target="_blank">Councilmatic</a><br>
+              <a href="https://datamade.us/products/budget-breakdown">Budget Breakdown</a>
+            </small>
+          </div>
+          <div class="col-sm-2">
+            <small>
+              <strong><a href="https://datamade.us/about-us/index.html">About us</a></strong><br>
+              <a href="https://datamade.us/blog/index.html">Blog</a><br>
+              <a href="https://datamade.us/careers/index.html">Careers</a><br>
+              <a href="https://datamade.us/documents/DataMade%20Anti-Harassment%20Policy%20and%20Procedures-v1.2.pdf" target="_blank">Anti-Harassment Policy</a><br>
+            </small>
+          </div>
+          <div class="col-sm-2">
+            <small>
+              <strong><a href="https://datamade.us/contact-us/">Contact us</a></strong><br>
+              <i class="fa fa-envelope"></i> <a href="mailto:info@datamade.us">info@datamade.us</a>
+              <br>
+              <i class="fa fa-twitter"></i>
+              <a href="https://twitter.com/DataMadeCo">@DataMadeCo</a>
+              <br>
+              © 2019 DataMade
+            </small>
+          </div>
+        </div>
+      </div>
+    </footer>
+    <script src="./Modern Approaches to Schema Matching - DataMade_files/analytics_lib.js.Download"></script>
+  
+
+</body></html>
