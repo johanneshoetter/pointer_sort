@@ -1,6 +1,5 @@
 from torch.utils.data import Dataset
 import torch
-#import pickle
 from .preprocessing import WordEmbedding, load_word_emb
 import numpy as np
 import os
@@ -77,7 +76,8 @@ class AlphabetSortingDataset(Dataset):
         self.chars.extend(chars) 
         return data['min_len'], data['max_len']
     
-    def split(self, train_ratio):
+    def split(self, train_ratio, random_state=42):
+        np.random.seed(42)
         train_idx, test_idx = train_test_split([idx for idx in range(self.__len__())], test_size=1 - train_ratio)
         return (Subset(self, train_idx), Subset(self, test_idx))
     
@@ -95,23 +95,30 @@ class SchemaMatchingDataset(Dataset):
             
     def _load_from_df(self, schema_matches):
         for idx, row in tqdm(schema_matches.iterrows(), total=len(schema_matches)):
-            source_col, input_cols, target_col = row
-            source_col, target_col = source_col.lower(), target_col.lower()
+            source_col, input_cols, target_cols = row
+            no_target = False if target_cols[0] != '<NONE>' else True
+            source_col = source_col.lower()
             input_cols = ';'.join([col.lower() for col in input_cols])
+            target_cols = [target_col.lower() for target_col in target_cols]
             input_sequence = "<BEG>;{};<SEQ>;{};<END>".format(source_col, input_cols)
             input_sequence_tok = input_sequence.split(';')
             end_pointer = input_sequence_tok.index('<END>') # basically len(input_sequence_tok)
-            padding =  [end_pointer for _ in range(len(input_sequence_tok)-1)]
+            
+            padding =  [end_pointer for _ in range(len(input_sequence_tok)-len(target_cols))]
             embeddings = []
             try:
-                target_pointer = torch.Tensor([input_sequence_tok.index(target_col)] + padding).long()
+                if no_target:
+                    targets = [end_pointer]
+                else:
+                    targets = [torch.Tensor([input_sequence_tok.index(target_col)]) for target_col in target_cols]
+                target_pointer =  torch.Tensor(targets + padding).long()
                 # e.g. tokens = ['<BEG>', 'area (km 2 )', '<SEQ>', 'dvd title',  'region 2', 'region 1 (us)', '<END>']
 
                 for token in input_sequence_tok:
                     embedding = np.mean([self.w2v(word) for word in token], axis=0)
                     embeddings.append(embedding)
                 embeddings = torch.Tensor(embeddings)
-                
+
                 self.x.append(embeddings)
                 self.x_raw.append(input_sequence)
                 self.y.append(target_pointer)
@@ -124,103 +131,62 @@ class SchemaMatchingDataset(Dataset):
     def __getitem__(self, idx):
         return self.x[idx], self.y[idx], self.x_raw[idx]
     
+    def collate(self, batch):
+        input_size = len(self.w2v('<BEG>'))
+        x, y = [entry[0] for entry in batch], [entry[1] for entry in batch]
+        max_len = max([len(sequence) for sequence in x])
+        for idx, (sequence, true) in enumerate(zip(x, y)):
+            len_padding = max_len - len(sequence)
+            if len_padding > 0:
+                target_padding = torch.Tensor([len(sequence) - 1 for _ in range(len_padding)]).long()
+                sequence_padding = torch.zeros(len_padding, input_size)
+                true = torch.cat([true, target_padding])
+                sequence = torch.cat([sequence, sequence_padding])
+                x[idx] = sequence
+                y[idx] = true
+        # make tensors out of list of tensors
+        x = torch.cat([torch.unsqueeze(sequence, dim=0) for sequence in x], dim=0)
+        y = torch.cat([torch.unsqueeze(targets, dim=0) for targets in y], dim=0)
+        return x, y
+    
     def save(self, path):
         data = {
             'x': self.x,
             'x_raw': self.x_raw,
             'y': self.y
         }
-        torch.save(data, os.path.join(path, 'schema_matching.pt'))
+        torch.save(data, os.path.join(path, 'schema_matching_1toN.pt'))
     
     def load(self, path):
-        data = torch.load(os.path.join(path, 'schema_matching.pt'))
+        data = torch.load(os.path.join(path, 'schema_matching_1toN.pt'))
         x, x_raw, y = data['x'], data['x_raw'], data['y']
         self.x.extend(x)
         self.x_raw.extend(x_raw)
         self.y.extend(y)
         
-    def split(self, train_ratio):
+    def split(self, train_ratio, random_state=42):
+        np.random.seed(random_state)
         train_idx, test_idx = train_test_split([idx for idx in range(self.__len__())], test_size=1 - train_ratio)
-        return (Subset(self, train_idx), Subset(self, test_idx))
-        
-#class AlphabetSortingDataset(Dataset):
-#    
-#    def __init__(self, num_samples, min_len=20, max_len=60, alphabet='abcdefghijklmnopqrstuvwxyz'):
-#        w2v = WordEmbedding(load_word_emb(w2v_config['data_dir'], 
-#                                          w2v_config['word2idx_path'],
-#                                          w2v_config['usedwordemb_path'])
-#                           )
-#        
-#        self.num_samples = num_samples
-#        self.alphabet = alphabet
-#        self.embedding = {char: w2v(char) for char in self.alphabet}
-#        self.min_len = min_len
-#        self.max_len = max_len
-#        self.x, self.chars, self.y = self._build()
-#        
-#    def _build(self):
-#        array_len = torch.randint(low=self.min_len, 
-#                            high=self.max_len + 1,
-#                            size=(1,))
-#        x_idxs = torch.randint(high=len(self.alphabet), size=(self.num_samples, array_len))
-#        y = x_idxs.argsort()
-#        x, chars = [], []
-#        for idxs in x_idxs:
-#            x_appendix, chars_appendix = [], []
-#            for idx in idxs:
-#                char = self.alphabet[idx]
-#                chars_appendix.append(char)
-#                x_appendix.append(self.embedding[char])
-#            x.append(x_appendix)
-#            chars.append(chars_appendix)
-#        return torch.Tensor(x), chars, y
-#    
-#    def __len__(self):
-#        return len(self.x)
-#    
-#    def __getitem__(self, idx):
-#        return self.x[idx], self.y[idx], self.chars[idx]
-        
-    
-class NumberSortingDataset(Dataset):
-    
-    def __init__(self, num_samples, min_num=0, max_num=9, min_len=20, max_len=60):
-        self.num_samples = num_samples
-        self.min = min_num
-        self.max = max_num
-        self.min_len = min_len
-        self.max_len = max_len
-        self.x, self.y = self._build()
-        
-    def _build(self):
-        array_len = torch.randint(low=self.min_len, 
-                            high=self.max_len + 1,
-                            size=(1,))
-        x = torch.randint(low=self.min, high=self.max, size=(self.num_samples, array_len))
-        y = x.argsort()
-        return x, y
-    
-    def __len__(self):
-        return len(self.x)
-    
-    def __getitem__(self, idx):
-        return self.x[idx], self.y[idx], self.x[idx]
-
-
-class ExtendedWikiSQL(Dataset):
-
-    def __init__(self):
-        self.inputs, self.targets = [], []
-
-    def __len__(self):
-        return len(self.inputs)
-
-    def __getitem__(self, idx):
         return {
-            'input': self.inputs[idx],
-            'target': self.targets[idx]
+            'train': {
+                'data': Subset(self, train_idx),
+                'idxs': train_idx
+            },
+            'test': {
+                'data': Subset(self, test_idx),
+                'idxs': test_idx
+            }
         }
-
-    def load_from_torch(self, path):
-        self.inputs = torch.load('{}_inputs.pt'.format(path))
-        self.targets = torch.load('{}_targets.pt'.format(path))
+    
+    def yield_bootstrap(self, num_samples, batch_size, random_state=42, use_train=False, train_ratio=0.8):
+        np.random.seed(random_state)
+        # get the indices, allow replace
+        splits = self.split(train_ratio, random_state=random_state)
+        if use_train:
+            idxs_pool = splits['train']['idxs']
+        else:
+            idxs_pool = splits['test']['idxs']
+        idxs_buffer = np.random.choice(idxs_pool, size=(num_samples, batch_size), replace=True)
+        for idxs in idxs_buffer:
+            yield self.collate(Subset(self, idxs))
+        # yield a Subset of the data on the indices
