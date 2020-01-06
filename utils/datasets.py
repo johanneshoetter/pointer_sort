@@ -166,7 +166,7 @@ class SchemaMatchingDataset(Dataset):
         
     def split(self, train_ratio, random_state=42):
         np.random.seed(random_state)
-        train_idx, test_idx = train_test_split([idx for idx in range(self.__len__())], test_size=1 - train_ratio)
+        train_idx, test_idx = train_test_split([idx for idx in range(self.__len__())], test_size=1 - train_ratio, random_state=random_state)
         return {
             'train': {
                 'data': Subset(self, train_idx),
@@ -178,7 +178,7 @@ class SchemaMatchingDataset(Dataset):
             }
         }
     
-    def yield_bootstrap(self, num_samples, batch_size, random_state=42, use_train=False, train_ratio=0.8):
+    def yield_bootstrap(self, num_samples, batch_size, random_state=42, use_train=False, train_ratio=0.8, yield_idxs=False):
         np.random.seed(random_state)
         # get the indices, allow replace
         splits = self.split(train_ratio, random_state=random_state)
@@ -188,5 +188,34 @@ class SchemaMatchingDataset(Dataset):
             idxs_pool = splits['test']['idxs']
         idxs_buffer = np.random.choice(idxs_pool, size=(num_samples, batch_size), replace=True)
         for idxs in idxs_buffer:
-            yield self.collate(Subset(self, idxs))
+            if yield_idxs:
+                yield idxs
+            else:
+                yield self.collate(Subset(self, idxs))
         # yield a Subset of the data on the indices
+        
+    def yield_bootstrap_by_class(self, num_samples, batch_size, random_state=42, use_train=False, train_ratio=0.8):
+        is_1to0 = lambda x: len(x.unique()) == 1
+        is_1to1 = lambda x: len(x.unique()) == 2
+        is_1toN = lambda x: len(x.unique()) >= 3
+
+        for idxs in self.yield_bootstrap(num_samples, batch_size, random_state=random_state, use_train=use_train, 
+                                    train_ratio=train_ratio, yield_idxs=True)
+            idxs_buffer_1to1, idxs_buffer_1toN, idxs_buffer_1to0 = [], [], []
+            for idx in idxs:
+                target = dataset[idx][1]
+                if is_1to1(target):
+                    idxs_buffer_1to1.append(idx)
+                elif is_1toN(target):
+                    idxs_buffer_1toN.append(idx)
+                elif is_1to0(target):
+                    idxs_buffer_1to0.append(idx)
+                else:
+                    continue
+            data = {
+                '1to0': self.collate(Subset(self, idxs_buffer_1to1)),
+                '1to1': self.collate(Subset(self, idxs_buffer_1to0)),
+                '1toN': self.collate(Subset(self, idxs_buffer_1toN))
+            }
+            yield data
+        
