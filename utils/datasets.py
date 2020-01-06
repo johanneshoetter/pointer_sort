@@ -200,10 +200,10 @@ class SchemaMatchingDataset(Dataset):
         is_1toN = lambda x: len(x.unique()) >= 3
 
         for idxs in self.yield_bootstrap(num_samples, batch_size, random_state=random_state, use_train=use_train, 
-                                    train_ratio=train_ratio, yield_idxs=True)
+                                    train_ratio=train_ratio, yield_idxs=True):
             idxs_buffer_1to1, idxs_buffer_1toN, idxs_buffer_1to0 = [], [], []
             for idx in idxs:
-                target = dataset[idx][1]
+                target = self.__getitem__(idx)[1]
                 if is_1to1(target):
                     idxs_buffer_1to1.append(idx)
                 elif is_1toN(target):
@@ -213,8 +213,8 @@ class SchemaMatchingDataset(Dataset):
                 else:
                     continue
             data = {
-                '1to0': self.collate(Subset(self, idxs_buffer_1to1)),
-                '1to1': self.collate(Subset(self, idxs_buffer_1to0)),
+                '1to0': self.collate(Subset(self, idxs_buffer_1to0)),
+                '1to1': self.collate(Subset(self, idxs_buffer_1to1)),
                 '1toN': self.collate(Subset(self, idxs_buffer_1toN))
             }
             yield data
