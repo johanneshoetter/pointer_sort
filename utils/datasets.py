@@ -12,75 +12,7 @@ w2v_config = {
     'data_dir': 'data/glove',
     'word2idx_path': 'word2idx.json',
     'usedwordemb_path': 'usedwordemb.npy'
-}
-
-# new version: creates sequences with unique characters (can not create sequences longer than 26 chars)
-class AlphabetSortingDataset(Dataset):
-    
-    #def __init__(self, num_samples, min_len=3, max_len=4, alphabet='0123456789'):
-    def __init__(self, num_samples, min_len=3, max_len=4, alphabet='abcdefghijklmnopqrstuvwxyz'):
-        w2v = WordEmbedding(load_word_emb(w2v_config['data_dir'], 
-                                          w2v_config['word2idx_path'],
-                                          w2v_config['usedwordemb_path'])
-                           )
-        
-        self.num_samples = num_samples
-        self.alphabet = alphabet
-        self.embedding = {char: w2v(char) for char in self.alphabet}
-        self.min_len = min_len
-        self.max_len = max_len
-        self.x, self.chars, self.y = self._build()
-        
-    def _build(self):
-        def create_sequence(alphabet, length):
-            return np.random.choice(alphabet, size=length, replace=False)
-      
-        array_len = np.random.randint(low=self.min_len, 
-                            high=min(len(self.alphabet), self.max_len + 1))
-        idx_pool =  list(range(0, len(self.alphabet)))
-        x_idxs = torch.Tensor([create_sequence(idx_pool, array_len) for _ in range(self.num_samples)])
-        y = x_idxs.argsort()
-        x, chars = [], []
-        for idxs in x_idxs:
-            x_appendix, chars_appendix = [], []
-            for idx in idxs:
-                char = self.alphabet[int(idx.numpy())]
-                chars_appendix.append(char)
-                x_appendix.append(self.embedding[char])
-            x.append(x_appendix)
-            chars.append(chars_appendix)
-        return torch.Tensor(x), chars, y
-    
-    def __len__(self):
-        return len(self.x)
-    
-    def __getitem__(self, idx):
-        return self.x[idx], self.y[idx], self.chars[idx]
-    
-    def save(self, path):
-        data = {
-            'x': self.x,
-            'y': self.y,
-            'chars': self.chars,
-            'min_len': self.min_len,
-            'max_len': self.max_len
-        }
-        torch.save(data, os.path.join(path, 'alphabet.pt'))
-
-    def load(self, path):
-        self.x, self.y, self.chars = [], [], []
-        data = torch.load(os.path.join(path, 'alphabet.pt'))
-        x, y, chars = data['x'], data['y'], data['chars']
-        self.x.extend(x)
-        self.y.extend(y)
-        self.chars.extend(chars) 
-        return data['min_len'], data['max_len']
-    
-    def split(self, train_ratio, random_state=42):
-        np.random.seed(42)
-        train_idx, test_idx = train_test_split([idx for idx in range(self.__len__())], test_size=1 - train_ratio)
-        return (Subset(self, train_idx), Subset(self, test_idx))
-    
+}   
     
 class SchemaMatchingDataset(Dataset):
     
@@ -149,16 +81,22 @@ class SchemaMatchingDataset(Dataset):
         y = torch.cat([torch.unsqueeze(targets, dim=0) for targets in y], dim=0)
         return x, y
     
-    def save(self, path):
+    def save(self, path, suffix=None):
         data = {
             'x': self.x,
             'x_raw': self.x_raw,
             'y': self.y
         }
-        torch.save(data, os.path.join(path, 'schema_matching_1toN.pt'))
+        if not suffix:
+            torch.save(data, os.path.join(path, 'schema_matching_1toN.pt'))
+        else:
+            torch.save(data, os.path.join(path, 'schema_matching_1toN_{}.pt'.format(suffix)))
     
-    def load(self, path):
-        data = torch.load(os.path.join(path, 'schema_matching_1toN.pt'))
+    def load(self, path, suffix=None):
+        if not suffix:
+            data = torch.load(os.path.join(path, 'schema_matching_1toN.pt'))
+        else:
+            data = torch.load(os.path.join(path, 'schema_matching_1toN_{}.pt'.format(suffix)))
         x, x_raw, y = data['x'], data['x_raw'], data['y']
         self.x.extend(x)
         self.x_raw.extend(x_raw)
